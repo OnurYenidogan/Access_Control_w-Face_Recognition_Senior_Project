@@ -35,7 +35,6 @@ class FaceRecognition:
             if len(face_encodings) == 0:
                 print(f"No faces detected in image {image}. Skipping.")
                 continue
-
             face_encoding = face_encodings[0]
 
             self.known_face_encodings.append(face_encoding)
@@ -43,7 +42,7 @@ class FaceRecognition:
         print(self.known_face_names)
 
     def run_recognition(self):
-        video_capture = cv2.VideoCapture(0)
+        video_capture = cv2.VideoCapture(1)
 
         if not video_capture.isOpened():
             sys.exit('Video source not found...')
