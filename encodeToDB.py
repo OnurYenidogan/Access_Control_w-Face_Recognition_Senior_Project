@@ -14,18 +14,19 @@ def encode_faces(path):
     for image in os.listdir(path):
         face_image = face_recognition.load_image_file(f"../Faces/{image}")
         face_encodings = face_recognition.face_encodings(face_image)
-        if len(face_encodings) == 0:
-            print("No faces found in the image")
-            return
 
-            # Convert the encoding to a binary representation
-        face_encoding_bytes = np.array(face_encodings[0]).tobytes()
 
         # Skip image if no faces are detected
         if len(face_encodings) == 0:
             print(f"No faces detected in image {image}. Skipping.")
             continue
         face_encoding = face_encodings[0]
+        if len(face_encodings) == 0:
+            print("No faces found in the image")
+            return
+
+            # Convert the encoding to a binary representation
+        face_encoding_bytes = np.array(face_encodings[0]).tobytes()
 
         hostname = 'localhost'
         database = 'SeniorProject'
