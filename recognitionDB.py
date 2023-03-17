@@ -3,6 +3,8 @@ import os, sys
 import cv2
 import numpy as np
 import math
+import psycopg2.extras
+
 
 # Helper
 def face_confidence(face_distance, face_match_threshold=0.6):
@@ -26,7 +28,7 @@ class FaceRecognition:
     def __init__(self):
         self.encode_faces()
 
-    def encode_faces(self):
+"""    def encode_faces(self):
         for image in os.listdir('../Faces'):
             face_image = face_recognition.load_image_file(f"../Faces/{image}")
             face_encodings = face_recognition.face_encodings(face_image)
@@ -39,9 +41,42 @@ class FaceRecognition:
 
             self.known_face_encodings.append(face_encoding)
             self.known_face_names.append(image)
-        print(self.known_face_names)
+        print(self.known_face_names)"""
 
     def run_recognition(self):
+        hostname = 'localhost'
+        database = 'SeniorProject'
+        username = 'postgres'
+        pwd = '1234'
+        port_id = 5432
+
+        # Connect to database
+        with psycopg2.connect(
+                host=hostname,
+                dbname=database,
+                user=username,
+                password=pwd,
+                port=port_id) as conn:
+
+            # Create cursor
+            with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+                # Execute SELECT query to get all rows from 'faces' table
+                cur.execute('SELECT name, encoding FROM faces')
+
+                # Fetch all rows
+                rows = cur.fetchall()
+
+                # Initialize empty lists
+                known_face_encodings = []
+                known_face_names = []
+
+                # Loop over each row and append name and encoding to the lists
+                for row in rows:
+                    name = row['name']
+                    encoding_bytes = row['encoding']
+                    encoding = np.frombuffer(encoding_bytes, dtype=np.float64)
+                    known_face_encodings.append(encoding)
+                    known_face_names.append(name)
         video_capture = cv2.VideoCapture(0)
 
         if not video_capture.isOpened():
