@@ -17,6 +17,7 @@ def face_confidence(face_distance, face_match_threshold=0.6):
         value = (linear_val + ((1.0 - linear_val) * math.pow((linear_val - 0.5) * 2, 0.2))) * 100
         return str(round(value, 2)) + '%'
 
+
 class FaceRecognition:
     face_locations = []
     face_encodings = []
@@ -24,24 +25,6 @@ class FaceRecognition:
     known_face_encodings = []
     known_face_names = []
     process_current_frame = True
-
-    def __init__(self):
-        self.encode_faces()
-
-"""    def encode_faces(self):
-        for image in os.listdir('../Faces'):
-            face_image = face_recognition.load_image_file(f"../Faces/{image}")
-            face_encodings = face_recognition.face_encodings(face_image)
-
-            # Skip image if no faces are detected
-            if len(face_encodings) == 0:
-                print(f"No faces detected in image {image}. Skipping.")
-                continue
-            face_encoding = face_encodings[0]
-
-            self.known_face_encodings.append(face_encoding)
-            self.known_face_names.append(image)
-        print(self.known_face_names)"""
 
     def run_recognition(self):
         hostname = 'localhost'
@@ -66,17 +49,13 @@ class FaceRecognition:
                 # Fetch all rows
                 rows = cur.fetchall()
 
-                # Initialize empty lists
-                known_face_encodings = []
-                known_face_names = []
-
                 # Loop over each row and append name and encoding to the lists
                 for row in rows:
                     name = row['name']
                     encoding_bytes = row['encoding']
                     encoding = np.frombuffer(encoding_bytes, dtype=np.float64)
-                    known_face_encodings.append(encoding)
-                    known_face_names.append(name)
+                    self.known_face_encodings.append(encoding)
+                    self.known_face_names.append(name)
         video_capture = cv2.VideoCapture(0)
 
         if not video_capture.isOpened():
@@ -139,6 +118,7 @@ class FaceRecognition:
         # Release handle to the webcam
         video_capture.release()
         cv2.destroyAllWindows()
+
 
 if __name__ == '__main__':
     fr = FaceRecognition()
