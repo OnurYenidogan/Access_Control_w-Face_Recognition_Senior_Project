@@ -18,6 +18,8 @@ class MainWindow(tk.Tk):
         # Bu dosya ile aynı dizindeki recognitionDB.py dosyasının yolunu belirtin
         db_file = os.path.join(sys.path[0], 'recognitionDB.py')
         subprocess.Popen(['python', db_file])
+        db_file2 = os.path.join(sys.path[0], 'recognitionDB2.py')
+        subprocess.Popen(['python', db_file2])
 
 
 if __name__ == '__main__':
