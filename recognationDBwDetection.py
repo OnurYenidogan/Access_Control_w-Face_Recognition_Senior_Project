@@ -55,6 +55,7 @@ class FaceRecognition:
                     encoding = np.frombuffer(encoding_bytes, dtype=np.float64)
                     self.known_face_encodings.append(encoding)
                     self.known_face_names.append(name)
+                print()
         video_capture = cv2.VideoCapture(0)
 
         if not video_capture.isOpened():
