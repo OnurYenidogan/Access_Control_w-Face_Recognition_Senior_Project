@@ -1,5 +1,6 @@
 import tkinter as tk
 import cv2
+import subprocess
 
 # VideoCapture'den mevcut kameraların isimlerini bulmak için kullanılacak bir fonksiyon
 def get_camera_list():
@@ -39,8 +40,8 @@ def select_camera():
     camera_number = camera_list.index(camera_name)
     # Kamerayı açın
     cap = cv2.VideoCapture(camera_number, cv2.CAP_DSHOW)
-    # Kamera görüntüsünü okuyun
-    ret, frame = cap.read()
+    # Yeni bir pencere açın ve kameradan canlı görüntüyü gösterin
+    subprocess.Popen(['python', 'live_camera_stream.py', f'{camera_number}'])
     # Kamerayı kapatın
     cap.release()
     # Seçilen kameranın ismini ve numarasını yazdırın
