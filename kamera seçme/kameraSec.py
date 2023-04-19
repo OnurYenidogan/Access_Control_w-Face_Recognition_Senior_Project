@@ -41,7 +41,7 @@ def select_camera():
     # Kamerayı açın
     cap = cv2.VideoCapture(camera_number, cv2.CAP_DSHOW)
     # Yeni bir pencere açın ve kameradan canlı görüntüyü gösterin
-    subprocess.Popen(['python', 'live_camera_stream.py', f'{camera_number}'])
+    subprocess.Popen(['python', 'giris_kamerasi.py', f'{camera_number}'])
     # Kamerayı kapatın
     cap.release()
     # Seçilen kameranın ismini ve numarasını yazdırın

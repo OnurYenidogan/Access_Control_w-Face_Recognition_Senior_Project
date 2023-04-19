@@ -3,21 +3,21 @@ import threading
 from tkinter import messagebox
 
 window = tk.Tk()
-window.title("Asd ve 123")
+window.title("Başlık")
 window.geometry("300x150")
 
 
-def run_asd():
+def run_kamera_sec():
     import subprocess
     subprocess.run(["python", "kameraSec.py"])
 
 
-def run_asd_thread():
-    t = threading.Thread(target=run_asd)
+def run_kamera_sec_thread():
+    t = threading.Thread(target=run_kamera_sec)
     t.start()
 
 
-kameraSec = tk.Button(window, text="kameraSec", command=run_asd_thread)
+kameraSec = tk.Button(window, text="Giriş-Çıkış Başlat", command=run_kamera_sec_thread)
 kameraSec.pack(pady=10)
 
 

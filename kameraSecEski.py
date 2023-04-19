@@ -45,11 +45,7 @@ def select_camera():
     # Kamerayı açın
     cap = cv2.VideoCapture(camera_number, cv2.CAP_DSHOW)
     # Yeni bir pencere açın ve kameradan canlı görüntüyü gösterin
-    if camera_type.get() == "Giriş":
-        subprocess.Popen(['python', 'giris_kamerasi.py', f'{camera_number}'])
-    else:
-        subprocess.Popen(['python', 'cikis_kamerasi.py', f'{camera_number}'])
-
+    subprocess.Popen(['python', 'giris_kamerasi.py', f'{camera_number}'])
     # Kamerayı kapatın
     cap.release()
     # Seçilen kameranın ismini ve numarasını yazdırın
@@ -65,6 +61,15 @@ input_radio = tk.Radiobutton(root, text="Giriş", variable=camera_type, value="G
 output_radio = tk.Radiobutton(root, text="Çıkış", variable=camera_type, value="Çıkış")
 input_radio.pack(pady=5)
 output_radio.pack(pady=5)
+
+# Kamera tipi seçildiğinde çağrılacak fonksiyon
+def select_camera_type():
+    # Seçilen kamera tipini yazdırın
+    print("Seçilen kamera tipi:", camera_type.get())
+
+# "Kamera Tipi Seç" düğmesi oluşturma
+select_type_button = tk.Button(root, text="Kamera Tipi Seç", command=select_camera_type)
+select_type_button.pack(pady=10)
 
 # Tkinter penceresini çalıştırma
 root.mainloop()
