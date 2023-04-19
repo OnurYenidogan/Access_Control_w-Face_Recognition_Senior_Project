@@ -1,56 +1,63 @@
 import tkinter as tk
+from tkinter import ttk
 import cv2
-import subprocess
+from PIL import Image, ImageTk
 
-# VideoCapture'den mevcut kameraların isimlerini bulmak için kullanılacak bir fonksiyon
-def get_camera_list():
-    camera_list = []
-    index = 0
-    while True:
-        cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
-        if not cap.read()[0]:
-            break
+
+class KameraSec:
+
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Kamera Seç")
+        self.root.geometry("640x480")
+
+        self.kameralar = self.list_kameralar()
+        self.kamera_secim = tk.StringVar()
+        self.kamera_secim.set(self.kameralar[0])
+        self.dropdown = ttk.Combobox(self.root, values=self.kameralar, textvariable=self.kamera_secim)
+        self.dropdown.pack(pady=10)
+
+        self.start_button = tk.Button(self.root, text="Başlat", command=self.baslat)
+        self.start_button.pack(pady=10)
+
+        self.canvas = tk.Canvas(self.root, width=640, height=480)
+        self.canvas.pack()
+
+        self.root.bind('<Escape>', lambda e: self.root.quit())  # ESC tuşuna basıldığında çıkış yap
+
+    def list_kameralar(self):
+        kamera_listesi = []
+        for i in range(10):
+            cap = cv2.VideoCapture(i)
+            if cap.read()[0]:
+                kamera_listesi.append(f"Kamera {i}")
+            cap.release()
+        return kamera_listesi
+
+    def baslat(self):
+        self.dropdown.config(state="disabled")
+        self.start_button.config(state="disabled")
+
+        self.cap = cv2.VideoCapture(int(self.kamera_secim.get().split()[-1]))
+        self.show_frame()
+
+    def show_frame(self):
+        ret, frame = self.cap.read()
+        if ret:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            img = Image.fromarray(frame)
+            img_tk = ImageTk.PhotoImage(img)
+            self.canvas.config(width=self.root.winfo_width(), height=self.root.winfo_height())
+            self.canvas.create_image(0, 0, image=img_tk, anchor='nw')
+            self.canvas.img_tk = img_tk
+            self.root.after(10, self.show_frame)
         else:
-            camera_name = f"Camera {index+1}"
-            camera_list.append(camera_name)
-        cap.release()
-        index += 1
-    return camera_list
+            self.cap.release()
+            self.dropdown.config(state="normal")
+            self.start_button.config(state="normal")
 
-# Tkinter penceresi oluşturma
-root = tk.Tk()
-root.geometry("300x150")
-root.title("Kamera Seçimi")
 
-# Dropdown menü için değişken oluşturma
-selected_camera = tk.StringVar()
-
-# Bilgisayarınıza bağlı kameraların isimlerini alın
-camera_list = get_camera_list()
-
-# Dropdown menü oluşturma
-camera_menu = tk.OptionMenu(root, selected_camera, *camera_list)
-camera_menu.pack(pady=10)
-
-# Kamera seçildiğinde çağrılacak fonksiyon
-def select_camera():
-    # Seçilen kameranın ismini alın
-    camera_name = selected_camera.get()
-    # Kameranın numarasını bulun
-    camera_number = camera_list.index(camera_name)
-    # Kamerayı açın
-    cap = cv2.VideoCapture(camera_number, cv2.CAP_DSHOW)
-    # Yeni bir pencere açın ve kameradan canlı görüntüyü gösterin
-    subprocess.Popen(['python', 'live_camera_stream.py', f'{camera_number}'])
-    # Kamerayı kapatın
-    cap.release()
-    # Seçilen kameranın ismini ve numarasını yazdırın
-    print("Seçilen kamera ismi:", camera_name)
-    print("Seçilen kamera numarası:", camera_number)
-
-# "Kamera Seç" düğmesi oluşturma
-select_button = tk.Button(root, text="Kamera Seç", command=select_camera)
-select_button.pack(pady=10)
-
-# Tkinter penceresini çalıştırma
-root.mainloop()
+if __name__ == '__main__':
+    root = tk.Tk()
+    kamera_sec = KameraSec(root)
+    root.mainloop()
