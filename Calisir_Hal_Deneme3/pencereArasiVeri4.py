@@ -14,6 +14,9 @@ def update_person_list(new_person):
     if camSelect:
         camSelect.update_list(person_list)
 
+def PostgreSQL_Connection():
+        print()
+
 class AddPersonWindow:
     def __init__(self, master):
         self.master = master
