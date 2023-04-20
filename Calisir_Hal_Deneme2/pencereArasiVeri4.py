@@ -1,6 +1,8 @@
 import cv2
 import tkinter as tk
+from tkinter import ttk
 from PIL import Image, ImageTk
+from some_functions import get_camera_list
 
 # örnek bir kişi listesi
 person_list = ["John Doe", "Jane Smith", "Bob Johnson"]
@@ -9,8 +11,8 @@ def update_person_list(new_person):
     person_list.append(new_person)
     print("Kişi listesi güncellendi:", person_list)
     # kamera penceresindeki kişi listesini güncelle
-    if cam_window:
-        cam_window.update_list(person_list)
+    if camSelect:
+        camSelect.update_list(person_list)
 
 class AddPersonWindow:
     def __init__(self, master):
@@ -28,8 +30,45 @@ class AddPersonWindow:
         update_person_list(new_person)
         self.master.destroy()
 
+class CameraSelect:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Kamera Seçimi")
+
+        self.BagliCams = get_camera_list()
+
+        self.camera_type = tk.StringVar()
+        self.camera_type.set("TypeA")
+
+        # Kamera türü seçimi için radio butonlar
+        self.typea_radio = ttk.Radiobutton(self.master, text="TypeA", variable=self.camera_type, value="TypeA")
+        self.typea_radio.grid(row=0, column=0, padx=5, pady=5)
+
+        self.typeb_radio = ttk.Radiobutton(self.master, text="TypeB", variable=self.camera_type, value="TypeB")
+        self.typeb_radio.grid(row=1, column=0, padx=5, pady=5)
+
+        # Kamera listesi için dropdown
+        self.camera_list = ttk.Combobox(self.master, values=self.BagliCams)
+        self.camera_list.grid(row=2, column=0, padx=5, pady=5)
+
+        # Seçimi onaylamak için buton
+        self.confirm_button = ttk.Button(self.master, text="Kamera Başlat", command=self.cameraStart)
+        self.confirm_button.grid(row=3, column=0, padx=5, pady=5)
+
+    def cameraStart(self):
+        if self.camera_type.get() == "TypeA":
+            CameraWindow(tk.Toplevel(), person_list, self.camera_list.get())
+            print(self.camera_list.get())
+        else:
+            CameraWindow(tk.Toplevel(), person_list, self.camera_list.get())
+
+
+
+        # burada bir hata mesajı yazdırabilirsiniz
+
+
 class CameraWindow:
-    def __init__(self, master, person_list):
+    def __init__(self, master, person_list, cam_No):
         self.master = master
         self.master.title("Kamera Akışı")
         self.person_list = person_list
@@ -43,7 +82,8 @@ class CameraWindow:
         self.camera_label.pack()
 
         # OpenCV ile kamera akışını al
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(int(cam_No))
+        print(cam_No)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         self.show_frame()
@@ -68,15 +108,16 @@ class CameraWindow:
     def add_person_window(self):
         AddPersonWindow(tk.Toplevel())
 
-def open_camera_window():
-    global cam_window
-    cam_window = CameraWindow(tk.Toplevel(), person_list)
+def open_CameraSelect():
+    global camSelect
+    camSelect = CameraSelect(tk.Toplevel())
+
 
 def main():
     global root
     root = tk.Tk()
     root.title("Ana Pencere")
-    start_button = tk.Button(root, text="Kamerayı Başlat", command=open_camera_window)
+    start_button = tk.Button(root, text="Kamerayı Başlat", command=open_CameraSelect)
     start_button.pack()
     add_button = tk.Button(root, text="Kişi Ekle", command=lambda: AddPersonWindow(tk.Toplevel()))
     add_button.pack()
