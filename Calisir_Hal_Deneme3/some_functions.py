@@ -1,5 +1,6 @@
 import cv2
-
+import psycopg2
+import numpy as np
 
 def get_camera_list():
     camera_list = []
@@ -14,3 +15,38 @@ def get_camera_list():
         cap.release()
         index += 1
     return camera_list
+
+def get_known_faces_from_db():
+    # Veritabanına bağlanma bilgilerini buraya girin
+    hostname = 'localhost'
+    database = 'SeniorProject'
+    username = 'postgres'
+    pwd = '1234'
+    port_id = 5432
+
+    known_face_encodings = []
+    known_face_names = []
+
+    # Veritabanına bağlan
+    with psycopg2.connect(
+            host=hostname,
+            dbname=database,
+            user=username,
+            password=pwd,
+            port=port_id) as conn:
+        # Veritabanı işlemleri için cursor oluştur
+        with conn.cursor() as cur:
+            # SELECT sorgusu ile 'faces' tablosundaki tüm satırları al
+            cur.execute('SELECT name, encoding FROM faces')
+
+            # Tüm satırları al
+            rows = cur.fetchall()
+            print(rows)
+            # Her satırı döngüde işle
+            for row in rows:
+                name = row[0]
+                encoding_bytes = row[1]
+                encoding = np.frombuffer(encoding_bytes, dtype=np.float64)
+                known_face_encodings.append(encoding)
+                known_face_names.append(name)
+    return known_face_encodings, known_face_names

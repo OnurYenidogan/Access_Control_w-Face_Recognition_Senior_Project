@@ -6,6 +6,21 @@ import math
 import psycopg2.extras
 
 
+def DBconn():
+    # Veritabanına bağlanma bilgilerini buraya girin
+    hostname = 'localhost'
+    database = 'SeniorProject'
+    username = 'postgres'
+    pwd = '1234'
+    port_id = 5432
+    with psycopg2.connect(
+            host=hostname,
+            dbname=database,
+            user=username,
+            password=pwd,
+            port=port_id) as conn:
+        return conn
+
 # Helper
 def face_confidence(face_distance, face_match_threshold=0.6):
     range = (1.0 - face_match_threshold)
@@ -26,39 +41,31 @@ class FaceRecognition:
     known_face_names = []
     #process_current_frame = True
 
+
     def get_known_faces_from_db(self):
-        # Veritabanına bağlanma bilgilerini buraya girin
-        hostname = 'localhost'
-        database = 'SeniorProject'
-        username = 'postgres'
-        pwd = '1234'
-        port_id = 5432
+
 
         known_face_encodings = []
         known_face_names = []
 
         # Veritabanına bağlan
-        with psycopg2.connect(
-                host=hostname,
-                dbname=database,
-                user=username,
-                password=pwd,
-                port=port_id) as conn:
-            # Veritabanı işlemleri için cursor oluştur
-            with conn.cursor() as cur:
-                # SELECT sorgusu ile 'faces' tablosundaki tüm satırları al
-                cur.execute('SELECT name, encoding FROM faces')
 
-                # Tüm satırları al
-                rows = cur.fetchall()
-                print(rows)
-                # Her satırı döngüde işle
-                for row in rows:
-                    name = row[0]
-                    encoding_bytes = row[1]
-                    encoding = np.frombuffer(encoding_bytes, dtype=np.float64)
-                    known_face_encodings.append(encoding)
-                    known_face_names.append(name)
+        # Veritabanı işlemleri için cursor oluştur
+
+        with conn.cursor() as cur:
+            # SELECT sorgusu ile 'faces' tablosundaki tüm satırları al
+            cur.execute('SELECT name, encoding FROM faces')
+
+            # Tüm satırları al
+            rows = cur.fetchall()
+            print(rows)
+            # Her satırı döngüde işle
+            for row in rows:
+                name = row[0]
+                encoding_bytes = row[1]
+                encoding = np.frombuffer(encoding_bytes, dtype=np.float64)
+                known_face_encodings.append(encoding)
+                known_face_names.append(name)
         return known_face_encodings, known_face_names
 
     # Veritabanından yüz verilerini çek
@@ -134,5 +141,8 @@ class FaceRecognition:
 
 
 if __name__ == '__main__':
+    global conn
+    conn = DBconn()
+
     fr = FaceRecognition()
     fr.run_recognition()

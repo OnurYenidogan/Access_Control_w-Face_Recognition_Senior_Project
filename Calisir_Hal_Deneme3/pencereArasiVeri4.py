@@ -2,7 +2,7 @@ import cv2
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-from some_functions import get_camera_list
+from some_functions import get_camera_list, get_known_faces_from_db
 
 # örnek bir kişi listesi
 person_list = ["John Doe", "Jane Smith", "Bob Johnson"]
