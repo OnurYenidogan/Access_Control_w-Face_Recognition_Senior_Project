@@ -48,10 +48,10 @@ class CameraSelect:
         self.camera_type.set("TypeA")
 
         # Kamera türü seçimi için radio butonlar
-        self.typea_radio = ttk.Radiobutton(self.master, text="TypeA", variable=self.camera_type, value="TypeA")
+        self.typea_radio = ttk.Radiobutton(self.master, text="Giriş", variable=self.camera_type, value="TypeA")
         self.typea_radio.grid(row=0, column=0, padx=5, pady=5)
 
-        self.typeb_radio = ttk.Radiobutton(self.master, text="TypeB", variable=self.camera_type, value="TypeB")
+        self.typeb_radio = ttk.Radiobutton(self.master, text="Çıkış", variable=self.camera_type, value="TypeB")
         self.typeb_radio.grid(row=1, column=0, padx=5, pady=5)
 
         # Kamera listesi için dropdown
