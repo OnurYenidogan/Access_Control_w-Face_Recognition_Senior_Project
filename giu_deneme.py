@@ -15,7 +15,7 @@ class MainWindow(tk.Tk):
         button.pack(pady=20)
 
     def open_new_window(self):
-        # Bu dosya ile aynı dizindeki recognitionDB.py dosyasının yolunu belirtin
+        # Bu dosya ile aynı dizindeki recognitionDB-In.py dosyasının yolunu belirtin
         db_file = os.path.join(sys.path[0], 'recognitionDB.py')
         subprocess.Popen(['python', db_file])
         db_file2 = os.path.join(sys.path[0], 'recognitionDB2.py')
