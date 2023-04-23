@@ -16,6 +16,7 @@ def update_person_list(new_person):
     # kamera penceresindeki kişi listesini güncelle
     if camSelect:
         camSelect.update_list(person_list)
+UsedCams=set()
 
 class AddPersonWindow:
     def __init__(self, master):
@@ -59,6 +60,8 @@ class CameraSelect:
         self.confirm_button.grid(row=3, column=0, padx=5, pady=5)
 
     def cameraStart(self):
+        UsedCams.add(self.camera_list.get())
+        print(UsedCams)
         if self.camera_type.get() == "TypeA":
             CameraWindowIn(tk.Toplevel(), person_list, self.camera_list.get(),'In')
             CameraWindowIn.recognation(self)
