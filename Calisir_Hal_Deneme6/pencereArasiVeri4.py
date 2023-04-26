@@ -4,6 +4,10 @@ from some_functions import get_camera_list, get_known_faces_from_db, DBconn
 import subprocess
 import os
 import sys
+import multiprocessing
+from recognitionDB_In import face_confidence,camReco
+import cv2
+
 
 # örnek bir kişi listesi
 global pgConn
@@ -89,8 +93,10 @@ class CameraWindowIn:
         self.camera_label.pack()
 
     def recognation(self):
-        db_file = os.path.join(sys.path[0], 'recognitionDB-In.py')
-        subprocess.Popen(['python', db_file])
+        """db_file = os.path.join(sys.path[0], 'recognitionDB_In.py')
+        subprocess.Popen(['python', db_file])"""
+        camReco(person_list,1,pgConn)
+
 
     def update_list(self, person_list):
         self.person_list = person_list
