@@ -51,7 +51,7 @@ def camReco(person_list, cam_No,conn):
             best_match_index = np.argmin(face_distances)
             if matches[best_match_index]:
                 name = known_face_names[best_match_index]
-                yazdırmalıkName = name
+                yazdirmalikName = name
                 confidence = face_confidence(face_distances[best_match_index])
 
             face_names.append(f'{name} ({confidence})')
@@ -71,7 +71,7 @@ def camReco(person_list, cam_No,conn):
             cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
             cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
 
-            if yazdırmalıkName != 'Unknown':
+            if yazdirmalikName != 'Unknown':
                 # conn = psycopg2.connect(database="your_database_name", user="your_username", password="your_password", host="your_host", port="your_port")
                 cur = conn.cursor()
                 Kamera_Tipi = 'i'
@@ -81,15 +81,15 @@ def camReco(person_list, cam_No,conn):
 
                 # Veritabanına ekleme işlemi
                 cur.execute("INSERT INTO log (name, datetime, action) VALUES (%s, %s, %s)",
-                            (yazdırmalıkName, current_time, Kamera_Tipi))
-                cur.execute("UPDATE faces SET Status = 'i', last_reco = %s WHERE name = %s", (current_time, yazdırmalıkName))
+                            (yazdirmalikName, current_time, Kamera_Tipi))
+                cur.execute("UPDATE faces SET Status = 'i', last_reco = %s WHERE name = %s", (current_time, yazdirmalikName))
 
                 # Değişiklikleri kaydetme
                 conn.commit()
 
         # Display the resulting image
 
-        cv2.imshow('Face Recognition', frame)
+        cv2.imshow('Face Recognition' + str(cam_No), frame)
 
         # Hit 'q' on the keyboard to quit!
         if cv2.waitKey(1) == ord('q'):
