@@ -61,24 +61,30 @@ class CameraSelect:
     def __init__(self, master):
         self.master = master
         self.master.title("Kamera Seçimi")
+        self.master.configure(background='#F5F5F5')
 
-        # Kamera listesi için dropdown
         self.BagliCams = get_camera_list()
-        self.camera_list = ttk.Combobox(self.master, values=[f"Kamera {cam}" for cam in self.BagliCams], state='readonly')
-        self.camera_list.current(0)
-        self.camera_list.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
+
+        self.camera_type = tk.StringVar(value="TypeA")
 
         # Kamera türü seçimi için radio butonlar
-        self.camera_type = tk.StringVar(value="TypeA")
-        ttk.Label(self.master, text="Kamera Türü:").grid(row=1, column=0, padx=10, pady=10)
         self.typea_radio = ttk.Radiobutton(self.master, text="Giriş", variable=self.camera_type, value="TypeA")
-        self.typea_radio.grid(row=1, column=1, padx=5, pady=5)
+        self.typea_radio.grid(row=0, column=0, padx=10, pady=10)
+
         self.typeb_radio = ttk.Radiobutton(self.master, text="Çıkış", variable=self.camera_type, value="TypeB")
-        self.typeb_radio.grid(row=2, column=1, padx=5, pady=5)
+        self.typeb_radio.grid(row=0, column=1, padx=10, pady=10)
+
+        # Kamera listesi için dropdown
+        self.camera_list = ttk.Combobox(self.master, values=[f"Kamera {cam}" for cam in self.BagliCams],
+                                        state='readonly', width=20)
+        self.camera_list.current(0)
+        self.camera_list.grid(row=1, column=0, columnspan=2, padx=10, pady=10)
 
         # Seçimi onaylamak için buton
         self.confirm_button = ttk.Button(self.master, text="Kamera Başlat", command=self.cameraStart)
-        self.confirm_button.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="s")
+        self.confirm_button.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="s")
+        self.confirm_button.configure(style='AccentButton.TButton')
+        self.master.bind("<Return>", lambda event: self.cameraStart())
 
     def cameraStart(self):
         camera_number_str = self.camera_list.get().split("Kamera ")[1]
