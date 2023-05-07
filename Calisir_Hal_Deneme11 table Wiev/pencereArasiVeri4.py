@@ -68,20 +68,22 @@ class CameraSelect:
         self.typea_radio.grid(row=0, column=0, padx=5, pady=5)
 
         self.typeb_radio = ttk.Radiobutton(self.master, text="Çıkış", variable=self.camera_type, value="TypeB")
-        self.typeb_radio.grid(row=1, column=0, padx=5, pady=5)
+        self.typeb_radio.grid(row=0, column=1, padx=5, pady=5)
 
         # Kamera listesi için dropdown
-        self.camera_list = ttk.Combobox(self.master, values=self.BagliCams, state='readonly')
+        self.camera_list = ttk.Combobox(self.master, values=[f"Kamera {cam}" for cam in self.BagliCams], state='readonly')
         self.camera_list.current(0)
-        self.camera_list.grid(row=2, column=0, padx=5, pady=5)
+        self.camera_list.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
         # Seçimi onaylamak için buton
         self.confirm_button = ttk.Button(self.master, text="Kamera Başlat", command=self.cameraStart)
-        self.confirm_button.grid(row=3, column=0, padx=5, pady=5)
+        self.confirm_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="s")
 
     def cameraStart(self):
         print(self.camera_list.get())
-        CameraWindowIn_Out.recognation(self, self.camera_list.get(), self.camera_type.get())
+        camera_number_str = self.camera_list.get().split("Kamera ")[1]
+        print(camera_number_str)
+        CameraWindowIn_Out.recognation(self, camera_number_str, self.camera_type.get())
 
 
 class CameraWindowIn_Out:
