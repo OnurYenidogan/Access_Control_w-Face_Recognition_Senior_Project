@@ -5,6 +5,11 @@ import numpy as np
 import math
 import psycopg2.extras
 
+global Kamera_Tipi
+if sys.argv[2] == "TypeA":
+    Kamera_Tipi = 'i'
+else:
+    Kamera_Tipi = 'o'
 
 
 
@@ -27,14 +32,14 @@ def DBconn():
 def add_to_database(name):
     #conn = psycopg2.connect(database="your_database_name", user="your_username", password="your_password", host="your_host", port="your_port")
     cur = conn.cursor()
-    Kamera_Tipi='i'
+
     # Şimdiki datetime bilgisini al
     now = datetime.now()
     current_time = now.strftime("%Y-%m-%d %H:%M:%S")
 
     # Veritabanına ekleme işlemi
     cur.execute("INSERT INTO log (name, datetime, action) VALUES (%s, %s, %s)", (name, current_time, Kamera_Tipi))
-    cur.execute("UPDATE faces SET Status = 'i', last_reco = %s WHERE name = %s", (current_time,name))
+    cur.execute("UPDATE faces SET Status = %s, last_reco = %s WHERE name = %s", (Kamera_Tipi, current_time,name))
 
     # Değişiklikleri kaydetme
     conn.commit()
@@ -95,7 +100,7 @@ class FaceRecognition:
     def run_recognition(self):
 
         self.known_face_encodings,self.known_face_names = self.get_known_faces_from_db()
-        video_capture = cv2.VideoCapture(2)
+        video_capture = cv2.VideoCapture(int(sys.argv[1]))
 
         if not video_capture.isOpened():
             sys.exit('Video source not found...')

@@ -65,23 +65,20 @@ class CameraSelect:
         self.confirm_button.grid(row=3, column=0, padx=5, pady=5)
 
     def cameraStart(self):
-        if self.camera_type.get() == "TypeA":
-            CameraWindowIn(tk.Toplevel(), person_list, self.camera_list.get())
-            CameraWindowIn.recognation(self)
-        else:
-            CameraWindowOut(tk.Toplevel(), person_list, self.camera_list.get())
-            CameraWindowOut.recognation(self)
+
+        CameraWindowIn_Out(tk.Toplevel(), person_list, self.camera_list.get())
+        print(self.camera_list.get())
+        CameraWindowIn_Out.recognation(self, self.camera_list.get(), self.camera_type.get())
 
 
 
-        # burada bir hata mesajı yazdırabilirsiniz
-
-
-class CameraWindowIn:
+class CameraWindowIn_Out:
     def __init__(self, master, person_list, cam_No):
         self.master = master
         self.master.title("Cam"+cam_No+" In")
         self.person_list = person_list
+        self.cam_No = cam_No
+        print(cam_No)
         self.listbox = tk.Listbox(self.master)
         for person in person_list:
             self.listbox.insert(tk.END, person)
@@ -91,36 +88,9 @@ class CameraWindowIn:
         self.camera_label = tk.Label(self.master)
         self.camera_label.pack()
 
-    def recognation(self):
-        db_file = os.path.join(sys.path[0], 'recognitionDB-In.py')
-        subprocess.Popen(['python', db_file])
-
-    def update_list(self, person_list):
-        self.person_list = person_list
-        self.listbox.delete(0, tk.END)
-        for person in person_list:
-            self.listbox.insert(tk.END, person)
-
-    def add_person_window(self):
-        AddPersonWindow(tk.Toplevel())
-
-class CameraWindowOut:
-    def __init__(self, master, person_list, cam_No):
-        self.master = master
-        self.master.title("Cam"+cam_No+" Out")
-        self.person_list = person_list
-        self.listbox = tk.Listbox(self.master)
-        for person in person_list:
-            self.listbox.insert(tk.END, person)
-        self.listbox.pack()
-        self.button = tk.Button(self.master, text="Kişi Ekle", command=self.add_person_window)
-        self.button.pack()
-        self.camera_label = tk.Label(self.master)
-        self.camera_label.pack()
-
-    def recognation(self):
-        db_file = os.path.join(sys.path[0], 'recognitionDB-Out.py')
-        subprocess.Popen(['python', db_file])
+    def recognation(self, cam_No, CType):
+        db_file = os.path.join(sys.path[0], 'recognitionDB-In-Out.py')
+        subprocess.Popen(['python', db_file, cam_No, CType])
 
     def update_list(self, person_list):
         self.person_list = person_list
