@@ -1,0 +1,1 @@
+ veritabanında i-o değişebilir 1-0 olarak
