@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from some_functions import get_camera_list, get_known_faces_from_db, DBconn
+from some_functions import get_camera_list, DBconn
 import subprocess
 import os
 import sys
@@ -116,12 +116,19 @@ def main():
     global root
     root = tk.Tk()
     root.title("Ana Pencere")
-    start_button = tk.Button(root, text="Kamerayı Başlat", command=open_CameraSelect)
-    start_button.pack()
-    add_button = tk.Button(root, text="Yoklama", command=lambda: ShowTableWindow(tk.Toplevel()))
-    add_button.pack()
-    add_button = tk.Button(root, text="Kişi Ekle", command=lambda: AddFaceWindow(tk.Toplevel()))
-    add_button.pack()
+
+    start_button = tk.Button(root, text="Kamerayı Başlat", command=open_CameraSelect,
+                             width=20, height=2, bg="blue", fg="white", font=("Helvetica", 16))
+    start_button.pack(padx=10, pady=10)
+
+    add_button1 = tk.Button(root, text="Yoklama", command=lambda: ShowTableWindow(tk.Toplevel()),
+                            width=20, height=2, bg="green", fg="white", font=("Helvetica", 16))
+    add_button1.pack(padx=10, pady=10)
+
+    add_button2 = tk.Button(root, text="Kişi Ekle", command=lambda: AddFaceWindow(tk.Toplevel()),
+                            width=20, height=2, bg="red", fg="white", font=("Helvetica", 16))
+    add_button2.pack(padx=10, pady=10)
+
     root.mainloop()
 
 
