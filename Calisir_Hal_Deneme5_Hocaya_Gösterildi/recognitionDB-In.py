@@ -95,7 +95,7 @@ class FaceRecognition:
     def run_recognition(self):
 
         self.known_face_encodings,self.known_face_names = self.get_known_faces_from_db()
-        video_capture = cv2.VideoCapture(1)
+        video_capture = cv2.VideoCapture(0)
 
         if not video_capture.isOpened():
             sys.exit('Video source not found...')

@@ -5,10 +5,11 @@ import numpy as np
 import math
 import psycopg2.extras
 
+
+
+
 import psycopg2
 from datetime import datetime
-
-
 def DBconn():
     # Veritabanına bağlanma bilgilerini buraya girin
     hostname = 'localhost'
@@ -23,24 +24,23 @@ def DBconn():
             password=pwd,
             port=port_id) as conn:
         return conn
-
-
 def add_to_database(name):
-    # conn = psycopg2.connect(database="your_database_name", user="your_username", password="your_password", host="your_host", port="your_port")
+    #conn = psycopg2.connect(database="your_database_name", user="your_username", password="your_password", host="your_host", port="your_port")
     cur = conn.cursor()
-    Kamera_Tipi = 'o'
+    Kamera_Tipi='i'
     # Şimdiki datetime bilgisini al
     now = datetime.now()
     current_time = now.strftime("%Y-%m-%d %H:%M:%S")
 
     # Veritabanına ekleme işlemi
     cur.execute("INSERT INTO log (name, datetime, action) VALUES (%s, %s, %s)", (name, current_time, Kamera_Tipi))
-    cur.execute("UPDATE faces SET Status = 'o', last_reco = %s WHERE name = %s", (current_time, name))
+    cur.execute("UPDATE faces SET Status = 'i', last_reco = %s WHERE name = %s", (current_time,name))
 
     # Değişiklikleri kaydetme
     conn.commit()
 
     # Bağlantıyı kapat
+
 
 
 # Fonksiyonu kullanarak veritabanına kayıt ekleme
@@ -64,8 +64,8 @@ class FaceRecognition:
     face_names = []
     known_face_encodings = []
     known_face_names = []
+    #process_current_frame = True
 
-    # process_current_frame = True
 
     def get_known_faces_from_db(self):
 
@@ -89,13 +89,13 @@ class FaceRecognition:
         return known_face_encodings, known_face_names
 
     # Veritabanından yüz verilerini çek
-    # known_face_encodings, known_face_names = get_known_faces_from_db()
+    #known_face_encodings, known_face_names = get_known_faces_from_db()
 
     # İşlem bittiğinde veritabanı bağlantısını kapattık
     def run_recognition(self):
 
-        self.known_face_encodings, self.known_face_names = self.get_known_faces_from_db()
-        video_capture = cv2.VideoCapture(0)
+        self.known_face_encodings,self.known_face_names = self.get_known_faces_from_db()
+        video_capture = cv2.VideoCapture(2)
 
         if not video_capture.isOpened():
             sys.exit('Video source not found...')
@@ -104,9 +104,9 @@ class FaceRecognition:
             ret, frame = video_capture.read()
 
             # Only process every other frame of video to save time
-            # if self.process_current_frame:
+            #if self.process_current_frame:
             # Resize frame of video to 1/4 size for faster face recognition processing
-            # small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+            #small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
             small_frame = frame
 
             # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
@@ -129,12 +129,12 @@ class FaceRecognition:
                 best_match_index = np.argmin(face_distances)
                 if matches[best_match_index]:
                     name = self.known_face_names[best_match_index]
-                    yazdırmalıkName2 = name
+                    yazdırmalıkName= name
                     confidence = face_confidence(face_distances[best_match_index])
 
                 self.face_names.append(f'{name} ({confidence})')
 
-            # self.process_current_frame = not self.process_current_frame
+            #self.process_current_frame = not self.process_current_frame
 
             # Display the results
             for (top, right, bottom, left), name in zip(self.face_locations, self.face_names):
@@ -149,12 +149,13 @@ class FaceRecognition:
                 cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
                 cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
 
-                if yazdırmalıkName2 != 'Unknown':
-                    add_to_database(yazdırmalıkName2)
+                if yazdırmalıkName != 'Unknown':
+                    add_to_database(yazdırmalıkName)
 
             # Display the resulting image
 
             cv2.imshow('Face Recognition', frame)
+
 
             # Hit 'q' on the keyboard to quit!
             if cv2.waitKey(1) == ord('q'):
