@@ -10,6 +10,10 @@ global pgConn
 pgConn = DBconn()
 
 
+def batch_add_faces():
+    """        folder_path = filedialog.askdirectory()
+    print(folder_path)"""
+    subprocess.Popen(['python', os.path.join(sys.path[0], 'encodeToDB.py')])
 class AddFaceWindow:
     def __init__(self, master):
         self.master = master
@@ -58,26 +62,28 @@ class CameraSelect:
         self.master = master
         self.master.title("Kamera Seçimi")
 
-        self.BagliCams = get_camera_list()
-
-        self.camera_type = tk.StringVar()
-        self.camera_type.set("TypeA")
-
-        # Kamera türü seçimi için radio butonlar
-        self.typea_radio = ttk.Radiobutton(self.master, text="Giriş", variable=self.camera_type, value="TypeA")
-        self.typea_radio.grid(row=0, column=0, padx=5, pady=5)
-
-        self.typeb_radio = ttk.Radiobutton(self.master, text="Çıkış", variable=self.camera_type, value="TypeB")
-        self.typeb_radio.grid(row=0, column=1, padx=5, pady=5)
-
         # Kamera listesi için dropdown
+        self.BagliCams = get_camera_list()
         self.camera_list = ttk.Combobox(self.master, values=[f"Kamera {cam}" for cam in self.BagliCams], state='readonly')
         self.camera_list.current(0)
-        self.camera_list.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+        self.camera_list.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
+
+        # Kamera türü seçimi için radio butonlar
+        self.camera_type = tk.StringVar(value="TypeA")
+        ttk.Label(self.master, text="Kamera Türü:").grid(row=1, column=0, padx=10, pady=10)
+        self.typea_radio = ttk.Radiobutton(self.master, text="Giriş", variable=self.camera_type, value="TypeA")
+        self.typea_radio.grid(row=1, column=1, padx=5, pady=5)
+        self.typeb_radio = ttk.Radiobutton(self.master, text="Çıkış", variable=self.camera_type, value="TypeB")
+        self.typeb_radio.grid(row=2, column=1, padx=5, pady=5)
 
         # Seçimi onaylamak için buton
         self.confirm_button = ttk.Button(self.master, text="Kamera Başlat", command=self.cameraStart)
-        self.confirm_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="s")
+        self.confirm_button.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="s")
+
+    def cameraStart(self):
+        camera_number_str = self.camera_list.get().split("Kamera ")[1]
+        cmrNo = int(camera_number_str)
+        CameraWindowIn_Out.recognation(self, cmrNo, self.camera_type.get())
 
     def cameraStart(self):
         print(self.camera_list.get())
@@ -125,7 +131,7 @@ def main():
                             width=20, height=2, bg="green", fg="white", font=("Helvetica", 16))
     add_button1.pack(padx=10, pady=10)
 
-    add_button2 = tk.Button(root, text="Kişi Ekle", command=lambda: AddFaceWindow(tk.Toplevel()),
+    add_button2 = tk.Button(root, text="Kişi Ekle", command=batch_add_faces,
                             width=20, height=2, bg="red", fg="white", font=("Helvetica", 16))
     add_button2.pack(padx=10, pady=10)
 
