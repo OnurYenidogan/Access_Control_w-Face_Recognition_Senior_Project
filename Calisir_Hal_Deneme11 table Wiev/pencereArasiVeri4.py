@@ -8,6 +8,8 @@ import pandas as pd
 from tkinter import filedialog
 from datetime import datetime
 import openpyxl
+import xlsxwriter
+
 
 
 """global pgConn
@@ -61,7 +63,7 @@ class ShowTableWindow:
         # DataFrame'i Excel dosyasına kaydetme işlemi
         save_file_path = filedialog.askdirectory()
         if save_file_path:
-            datetime_str = datetime.now().strftime("%d.%m.%Y %H-%M-%S") + " Yoklaması"
+            datetime_str = datetime.now().strftime("%d-%m-%Y %H.%M.%S") + " Yoklaması"
             df.to_excel(save_file_path + f"/{datetime_str}.xlsx", sheet_name="Yoklama", index=False)
 
         # Tablo verilerini Tkinter grid widget'ı üzerinde gösterme işlemi
@@ -69,6 +71,9 @@ class ShowTableWindow:
             for j, value in enumerate(row):
                 label = tk.Label(self.master, text=value)
                 label.grid(row=i, column=j, padx=5, pady=5)
+
+
+
 
 
 
