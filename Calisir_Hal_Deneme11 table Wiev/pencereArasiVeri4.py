@@ -4,6 +4,10 @@ from some_functions import get_camera_list, DBconn
 import subprocess
 import os
 import sys
+import pandas as pd
+from tkinter import filedialog
+from datetime import datetime
+import openpyxl
 
 
 """global pgConn
@@ -36,7 +40,7 @@ class AddFaceWindow:
 class ShowTableWindow:
     def __init__(self, master):
         self.master = master
-        # self.master.title(f"{db_name} Veritabanı - {table_name} Tablosu")
+        self.master.title("Yoklama Tablosu")
 
         # PostgreSQL veritabanına bağlanma işlemi
         conn = DBconn()
@@ -45,17 +49,28 @@ class ShowTableWindow:
         cur = conn.cursor()
         cur.execute(f"SELECT id, name, status, last_reco FROM faces;")
 
-        # Tablo verilerini Tkinter grid widget'ı üzerinde gösterme işlemi
+        # Tablo verilerini bir DataFrame'e aktarma işlemi
         rows = cur.fetchall()
-        for i, row in enumerate(rows):
-            print(row)
-            for j, value in enumerate(row):
-                label = tk.Label(self.master, text=value)
-                label.grid(row=i, column=j, padx=5, pady=5)
+        df = pd.DataFrame(rows, columns=["ID", "İsim", "Durum", "Son Tanıma Tarihi"])
+        df["Durum"] = df["Durum"].apply(lambda x: "İçeride" if x == "i" else "Dışarıda")
 
         # Bağlantıyı kapatma işlemi
         cur.close()
         conn.close()
+
+        # DataFrame'i Excel dosyasına kaydetme işlemi
+        save_file_path = filedialog.askdirectory()
+        if save_file_path:
+            datetime_str = datetime.now().strftime("%d.%m.%Y %H-%M-%S") + " Yoklaması"
+            df.to_excel(save_file_path + f"/{datetime_str}.xlsx", sheet_name="Yoklama", index=False)
+
+        # Tablo verilerini Tkinter grid widget'ı üzerinde gösterme işlemi
+        for i, row in df.iterrows():
+            for j, value in enumerate(row):
+                label = tk.Label(self.master, text=value)
+                label.grid(row=i, column=j, padx=5, pady=5)
+
+
 
 
 class CameraSelect:
