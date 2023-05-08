@@ -1,9 +1,12 @@
-import face_recognition
-import os, sys
-import cv2
-import numpy as np
 import math
+import sys
+import cv2
+import face_recognition
+import numpy as np
 import psycopg2.extras
+import psycopg2
+from datetime import datetime
+
 
 global Kamera_Tipi
 if sys.argv[2] == "TypeA":
@@ -13,8 +16,7 @@ else:
 
 
 
-import psycopg2
-from datetime import datetime
+
 def DBconn():
     # Veritabanına bağlanma bilgilerini buraya girin
     hostname = 'localhost'
