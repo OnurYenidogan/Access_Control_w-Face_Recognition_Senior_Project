@@ -6,8 +6,8 @@ import os
 import sys
 
 
-global pgConn
-pgConn = DBconn()
+"""global pgConn
+pgConn = DBconn()"""
 
 
 def batch_add_faces():
@@ -39,15 +39,16 @@ class ShowTableWindow:
         # self.master.title(f"{db_name} Veritabanı - {table_name} Tablosu")
 
         # PostgreSQL veritabanına bağlanma işlemi
-        conn = pgConn
+        conn = DBconn()
 
         # Tablo verilerini çeken sorgu
         cur = conn.cursor()
-        cur.execute(f"SELECT * FROM faces")
+        cur.execute(f"SELECT id, name, status, last_reco FROM faces;")
 
         # Tablo verilerini Tkinter grid widget'ı üzerinde gösterme işlemi
         rows = cur.fetchall()
         for i, row in enumerate(rows):
+            print(row)
             for j, value in enumerate(row):
                 label = tk.Label(self.master, text=value)
                 label.grid(row=i, column=j, padx=5, pady=5)
