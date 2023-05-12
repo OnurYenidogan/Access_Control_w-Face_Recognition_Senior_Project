@@ -4,6 +4,8 @@ import numpy as np
 import configparser
 import os
 
+import configparser
+import psycopg2
 
 def get_camera_list():
     camera_list = []
@@ -33,9 +35,7 @@ def get_camera_list():
             password=pwd,
             port=port_id) as conn:
         return conn"""
-import os
-import configparser
-import psycopg2
+
 
 def DBconn():
     config = configparser.ConfigParser()
