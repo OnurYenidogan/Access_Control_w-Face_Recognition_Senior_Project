@@ -2,9 +2,7 @@ import psycopg2
 import psycopg2.extras
 import face_recognition
 import os
-import cv2
 import numpy as np
-import tkinter as tk
 from tkinter import filedialog, messagebox
 
 
@@ -18,7 +16,7 @@ def encode_faces():
     known_face_encodings = []
     known_face_names = []
     for image in os.listdir(folder_path):
-        image_path = os.path.join(folder_path, image) # construct full image path
+        image_path = os.path.join(folder_path, image)  # construct full image path
         face_image = face_recognition.load_image_file(image_path)
         face_encodings = face_recognition.face_encodings(face_image)
 
@@ -71,15 +69,17 @@ def encode_faces():
         known_face_names.append(name)
 
         # Her bir yüzün veritabanına eklenmesi durumunda bir mesaj gösteren bir iletişim kutusu açın
-        #msg = f"{name} added to the database."
-        #messagebox.showinfo(title="Face encoded", message=msg)
+        # msg = f"{name} added to the database."
+        # messagebox.showinfo(title="Face encoded", message=msg)
 
     # Yüzlerin sayısını gösteren bir iletişim kutusu açın
     msg = f"{len(known_face_names)} kişi veritabanına kaydedildi."
     messagebox.showinfo(title="Process completed", message=msg)
 
+
 def stop_program():
     exit()
+
 
 if __name__ == '__main__':
     encode_faces()

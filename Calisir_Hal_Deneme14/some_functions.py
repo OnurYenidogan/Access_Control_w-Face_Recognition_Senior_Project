@@ -1,6 +1,9 @@
 import cv2
 import psycopg2
 import numpy as np
+import configparser
+import os
+
 
 def get_camera_list():
     camera_list = []
@@ -15,27 +18,8 @@ def get_camera_list():
         cap.release()
         index += 1
     return camera_list
-import configparser
 
 """def DBconn():
-    config = configparser.ConfigParser()
-    config.read('config.ini')  # ini dosyasını oku
-
-    # İni dosyasından değerleri al
-    hostname = config.get('Database', 'hostname')
-    database = config.get('Database', 'database')
-    username = config.get('Database', 'username')
-    password = config.get('Database', 'password')
-    port_id = config.getint('Database', 'port')
-
-    with psycopg2.connect(
-            host=hostname,
-            dbname=database,
-            user=username,
-            password=password,
-            port=port_id) as conn:
-        return conn"""
-def DBconn():
     # Veritabanına bağlanma bilgilerini buraya girin
     hostname = 'localhost'
     database = 'SeniorProject'
@@ -48,7 +32,31 @@ def DBconn():
             user=username,
             password=pwd,
             port=port_id) as conn:
+        return conn"""
+import os
+import configparser
+import psycopg2
+
+def DBconn():
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+
+    # Veritabanına bağlanma bilgilerini buraya girin
+    hostname = config.get('Database', 'hostname')
+    database = config.get('Database', 'database')
+    username = config.get('Database', 'username')
+    pwd = config.get('Database', 'pwd')
+    port_id = config.get('Database', 'port_id')
+
+    with psycopg2.connect(
+            host=hostname,
+            dbname=database,
+            user=username,
+            password=pwd,
+            port=port_id) as conn:
         return conn
+
+
 
 def DBconnCheck(hostname, database, username, pwd, port_id):
     try:

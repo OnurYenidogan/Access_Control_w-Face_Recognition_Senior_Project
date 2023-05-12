@@ -11,8 +11,8 @@ import openpyxl
 import xlsxwriter
 import configparser
 from tkinter import messagebox
-"""Gereksiz olanlar projeden kaldırılmadığı için burada yazıyor"""
 
+"""Gereksiz olanlar projeden kaldırılmadığı için burada yazıyor"""
 
 """global pgConn
 pgConn = DBconn()"""
@@ -22,6 +22,8 @@ def batch_add_faces():
     """        folder_path = filedialog.askdirectory()
     print(folder_path)"""
     subprocess.Popen(['python', os.path.join(sys.path[0], 'encodeToDB.py')])
+
+
 class AddFaceWindow:
     def __init__(self, master):
         self.master = master
@@ -48,6 +50,7 @@ class ShowTableWindow:
 
         # PostgreSQL veritabanına bağlanma işlemi
         conn = DBconn()
+        print(conn)
 
         # Tablo verilerini çeken sorgu
         cur = conn.cursor()
@@ -73,11 +76,6 @@ class ShowTableWindow:
             for j, value in enumerate(row):
                 label = tk.Label(self.master, text=value)
                 label.grid(row=i, column=j, padx=5, pady=5)
-
-
-
-
-
 
 
 class CameraSelect:
@@ -146,6 +144,7 @@ def open_CameraSelect():
     global camSelect
     camSelect = CameraSelect(tk.Toplevel())
 
+
 def main():
     # Stil ayarları
     BG_COLOR = "#F0F0F0"
@@ -158,9 +157,13 @@ def main():
     config = configparser.ConfigParser()
 
     def show_form_dialog():
-        ini_tk = tk.Tk()
-        ini_tk.withdraw()
 
+        ini_tk = tk.Tk()
+        ini_tk.title("VT bilgilerini girin")
+        ini_tk.withdraw(
+                        "Lütfen PostgreSQL bağlantısı için gerekli bilgileri giriniz. "
+                        "Bu işlem config.ini dosyası varsa üstüne yeni bilgileri kaydedecektir, "
+                        "yoksa yeni bir dosya oluşturacaktır.")
         dialog = tk.Toplevel(ini_tk)
 
         def on_dialog_close():
@@ -218,13 +221,13 @@ def main():
 
     if os.path.exists('config.ini'):
         config.read('config.ini')
-        print(dict(config['DEFAULT']))  # debug
+        print(dict(config['Database']))  # debug
         conn = DBconnCheck(
-            config['DEFAULT']['hostname'],
-            config['DEFAULT']['database'],
-            config['DEFAULT']['username'],
-            config['DEFAULT']['pwd'],
-            config['DEFAULT']['port_id']
+            config['Database']['hostname'],
+            config['Database']['database'],
+            config['Database']['username'],
+            config['Database']['pwd'],
+            config['Database']['port_id']
         )
         if conn is None:
             os.remove('config.ini')
@@ -249,7 +252,7 @@ def main():
                 form_data = show_form_dialog()
             hostname, database, username, pwd, port_id = form_data
 
-        config['DEFAULT'] = {
+        config['Database'] = {
             'hostname': hostname,
             'database': database,
             'username': username,
@@ -277,6 +280,7 @@ def main():
     add_button2.pack(padx=10, pady=10)
 
     root.mainloop()
+
 
 if __name__ == "__main__":
     main()

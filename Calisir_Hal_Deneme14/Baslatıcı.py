@@ -7,12 +7,12 @@ def create_table():
     username = 'postgres'
     pwd = '1234'
     port_id = 5432
-    conn= psycopg2.connect(
-            host=hostname,
-            dbname=database,
-            user=username,
-            password=pwd,
-            port=port_id)
+    conn = psycopg2.connect(
+        host=hostname,
+        dbname=database,
+        user=username,
+        password=pwd,
+        port=port_id)
 
     cur = conn.cursor()
     cur.execute("""
@@ -26,5 +26,6 @@ def create_table():
     conn.commit()
     cur.close()
     conn.close()
+
 
 create_table()
