@@ -6,7 +6,7 @@ import numpy as np
 import psycopg2.extras
 import psycopg2
 from datetime import datetime
-
+from some_functions import DBconn
 
 global Kamera_Tipi
 if sys.argv[2] == "TypeA":
@@ -15,22 +15,6 @@ else:
     Kamera_Tipi = 'o'
 
 
-
-
-def DBconn():
-    # Veritabanına bağlanma bilgilerini buraya girin
-    hostname = 'localhost'
-    database = 'SeniorProject'
-    username = 'postgres'
-    pwd = '1234'
-    port_id = 5432
-    with psycopg2.connect(
-            host=hostname,
-            dbname=database,
-            user=username,
-            password=pwd,
-            port=port_id) as conn:
-        return conn
 def add_to_database(name):
     #conn = psycopg2.connect(database="your_database_name", user="your_username", password="your_password", host="your_host", port="your_port")
     cur = conn.cursor()
@@ -71,7 +55,6 @@ class FaceRecognition:
     face_names = []
     known_face_encodings = []
     known_face_names = []
-    #process_current_frame = True
 
 
     def get_known_faces_from_db(self):
@@ -109,19 +92,21 @@ class FaceRecognition:
 
         while True:
             ret, frame = video_capture.read()
-
+            kucultmeOranı=1#detection daha küçük ölçekte yapılır
             # Only process every other frame of video to save time
             #if self.process_current_frame:
-            # Resize frame of video to 1/4 size for faster face recognition processing
-            #small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
             small_frame = frame
+            # Resize frame of video to 1/4 size for faster face recognition processing
+            small_frame = cv2.resize(frame, (0, 0), fx=1/kucultmeOranı, fy=1/kucultmeOranı)
+
 
             # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
             rgb_small_frame = small_frame[:, :, ::-1]
-
+            rgb_frame = frame[:, :, ::-1]
             # Find all the faces and face encodings in the current frame of video
             self.face_locations = face_recognition.face_locations(rgb_small_frame)
-            self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations)
+
+            self.face_encodings = face_recognition.face_encodings(rgb_frame, [(top*kucultmeOranı, right*kucultmeOranı, bottom*kucultmeOranı, left*kucultmeOranı) for top, right, bottom, left in self.face_locations])
 
             self.face_names = []
             for face_encoding in self.face_encodings:
@@ -129,6 +114,7 @@ class FaceRecognition:
                 matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
                 name = "Unknown"
                 confidence = '???'
+                yazdirmalikName = "Unknown"  # Initialize it here
 
                 # Calculate the shortest distance to face
                 face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
@@ -146,10 +132,10 @@ class FaceRecognition:
             # Display the results
             for (top, right, bottom, left), name in zip(self.face_locations, self.face_names):
                 # Scale back up face locations since the frame we detected in was scaled to 1/4 size
-                """top *= 4
-                right *= 4
-                bottom *= 4
-                left *= 4"""
+                top *= kucultmeOranı
+                right *= kucultmeOranı
+                bottom *= kucultmeOranı
+                left *= kucultmeOranı
 
                 # Create the frame with the name
                 cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
