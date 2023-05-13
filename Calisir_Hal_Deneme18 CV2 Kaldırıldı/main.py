@@ -101,7 +101,7 @@ class ShowTableWindow:
         # DataFrame'i Excel dosyasına kaydetme işlemi
         save_file_path = filedialog.askdirectory()
         if save_file_path:
-            datetime_str = datetime.now().strftime("%d-%m-%Y %H.%M.%S") + " Yoklaması"
+            datetime_str = datetime.now().strftime("%Y-%m-%d %H-%M-%S") + " Yoklaması"
             self.df.to_excel(save_file_path + f"/{datetime_str}.xlsx", sheet_name="Yoklama", index=False)
 
 
