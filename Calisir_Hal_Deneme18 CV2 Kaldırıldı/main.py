@@ -41,6 +41,9 @@ class AddFaceWindow:
         subprocess.Popen(['python', os.path.join(sys.path[0], 'encodeToDB.py')])
 
 
+import tkinter as tk
+from tkinter import ttk
+
 class ShowTableWindow:
     def __init__(self, master):
         self.master = master
@@ -69,11 +72,21 @@ class ShowTableWindow:
             datetime_str = datetime.now().strftime("%d-%m-%Y %H.%M.%S") + " Yoklaması"
             df.to_excel(save_file_path + f"/{datetime_str}.xlsx", sheet_name="Yoklama", index=False)
 
-        # Tablo verilerini Tkinter grid widget'ı üzerinde gösterme işlemi
-        for i, row in df.iterrows():
-            for j, value in enumerate(row):
-                label = tk.Label(self.master, text=value)
-                label.grid(row=i, column=j, padx=5, pady=5)
+        # Treeview widget'ını oluşturma işlemi
+        tree = ttk.Treeview(self.master)
+        tree["columns"]=("ID", "İsim", "Durum", "Son Tanıma Tarihi")
+
+        # Her bir sütun için başlık ve genişlik belirleme
+        for column in tree["columns"]:
+            tree.column(column, width=100)
+            tree.heading(column, text=column)
+
+        # DataFrame'deki verileri Treeview widget'ına ekleme
+        for _, row in df.iterrows():
+            tree.insert("", "end", values=list(row))
+
+        tree.pack()
+
 
 
 class CameraSelect:
