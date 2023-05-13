@@ -44,10 +44,17 @@ class AddFaceWindow:
 import tkinter as tk
 from tkinter import ttk
 
+import tkinter as tk
+from tkinter import ttk, filedialog
+from datetime import datetime
+import pandas as pd
+
 class ShowTableWindow:
     def __init__(self, master):
         self.master = master
         self.master.title("Yoklama Tablosu")
+        self.style = ttk.Style()
+        self.style.theme_use("clam")  # Görsel tema
 
         # PostgreSQL veritabanına bağlanma işlemi
         conn = DBconn()
@@ -59,33 +66,44 @@ class ShowTableWindow:
 
         # Tablo verilerini bir DataFrame'e aktarma işlemi
         rows = cur.fetchall()
-        df = pd.DataFrame(rows, columns=["ID", "İsim", "Durum", "Son Tanıma Tarihi"])
-        df["Durum"] = df["Durum"].apply(lambda x: "İçeride" if x == "i" else "Dışarıda")
+        self.df = pd.DataFrame(rows, columns=["ID", "İsim", "Durum", "Son Tanıma Tarihi"])
+        self.df["Durum"] = self.df["Durum"].apply(lambda x: "İçeride" if x == "i" else "Dışarıda")
 
         # Bağlantıyı kapatma işlemi
         cur.close()
         conn.close()
 
+        # Treeview widget'ını oluşturma işlemi
+        self.tree = ttk.Treeview(self.master, show='headings')
+        self.tree["columns"]=("ID", "İsim", "Durum", "Son Tanıma Tarihi")
+
+        # Her bir sütun için başlık ve genişlik belirleme
+        for column in self.tree["columns"]:
+            self.tree.column(column, width=100)
+            self.tree.heading(column, text=column)
+
+        # DataFrame'deki verileri Treeview widget'ına ekleme
+        for _, row in self.df.iterrows():
+            self.tree.insert("", "end", values=list(row))
+
+        # Kaydırma çubuğunu oluşturma
+        self.scrollbar = ttk.Scrollbar(self.master, orient='vertical', command=self.tree.yview)
+        self.scrollbar.pack(side='right', fill='y')
+        self.tree.configure(yscrollcommand=self.scrollbar.set)
+
+        self.tree.pack()
+
+        # Excel Oluştur butonu
+        self.save_button = ttk.Button(self.master, text="Yoklamayı Excel Dosyası Olarak Dışa Aktar", command=self.save_to_excel)
+        self.save_button.pack()
+
+    def save_to_excel(self):
         # DataFrame'i Excel dosyasına kaydetme işlemi
         save_file_path = filedialog.askdirectory()
         if save_file_path:
             datetime_str = datetime.now().strftime("%d-%m-%Y %H.%M.%S") + " Yoklaması"
-            df.to_excel(save_file_path + f"/{datetime_str}.xlsx", sheet_name="Yoklama", index=False)
+            self.df.to_excel(save_file_path + f"/{datetime_str}.xlsx", sheet_name="Yoklama", index=False)
 
-        # Treeview widget'ını oluşturma işlemi
-        tree = ttk.Treeview(self.master)
-        tree["columns"]=("ID", "İsim", "Durum", "Son Tanıma Tarihi")
-
-        # Her bir sütun için başlık ve genişlik belirleme
-        for column in tree["columns"]:
-            tree.column(column, width=100)
-            tree.heading(column, text=column)
-
-        # DataFrame'deki verileri Treeview widget'ına ekleme
-        for _, row in df.iterrows():
-            tree.insert("", "end", values=list(row))
-
-        tree.pack()
 
 
 
