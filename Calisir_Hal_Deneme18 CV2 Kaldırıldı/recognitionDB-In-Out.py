@@ -137,10 +137,35 @@ class FaceRecognition:
                 bottom *= kucultmeOranı
                 left *= kucultmeOranı
 
-                # Create the frame with the name
-                cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
-                cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
-                cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
+                # Frame thickness
+                frame_thickness = 2
+
+                # Draw a box around the face
+                cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0),
+                              frame_thickness)  # Change the color to red
+
+                # Calculate text width & height to draw the transparent boxes
+                font = cv2.FONT_HERSHEY_DUPLEX
+                font_scale = 0.8
+                font_thickness = 1
+                text_size = cv2.getTextSize(name, font, font_scale, font_thickness)[0]
+
+                # Scale factors for width and height
+                scale_factor = 1.5  # Adjust this value to your preference
+
+                # Draw a filled box around the name
+                padding = int(scale_factor * 5)  # Adjust this value to your preference
+                text_offset_x = left
+                text_offset_y = bottom + frame_thickness * 2 + int(
+                    text_size[1] * scale_factor) + 2 * padding  # Adjust for frame thickness
+                box_coords = ((text_offset_x - padding, text_offset_y + padding),
+                              (text_offset_x + text_size[0] + padding,
+                               text_offset_y - int(text_size[1] * scale_factor) - padding))
+                cv2.rectangle(frame, box_coords[0], box_coords[1], (0, 0, 255), cv2.FILLED)  # Change the color to green
+
+                # Draw the text
+                cv2.putText(frame, name, (text_offset_x, text_offset_y - padding), font, font_scale, (255, 255, 255),
+                            font_thickness)
 
                 if yazdirmalikName != 'Unknown':
                     add_to_database(yazdirmalikName)
