@@ -146,18 +146,18 @@ class FaceRecognition:
 
                 # Calculate text width & height to draw the transparent boxes
                 font = cv2.FONT_HERSHEY_DUPLEX
-                font_scale = 0.8
+                font_scale = 0.68
                 font_thickness = 1
                 text_size = cv2.getTextSize(name, font, font_scale, font_thickness)[0]
 
                 # Scale factors for width and height
-                scale_factor = 1.5  # Adjust this value to your preference
+                scale_factor = 1.2  # Adjust this value to your preference
 
                 # Draw a filled box around the name
                 padding = int(scale_factor * 5)  # Adjust this value to your preference
                 text_offset_x = left
-                text_offset_y = bottom + frame_thickness * 2 + int(
-                    text_size[1] * scale_factor) + 2 * padding  # Adjust for frame thickness
+                text_offset_y = bottom + frame_thickness + int(
+                    text_size[1] * scale_factor) + padding  # Adjust for frame thickness
                 box_coords = ((text_offset_x - padding, text_offset_y + padding),
                               (text_offset_x + text_size[0] + padding,
                                text_offset_y - int(text_size[1] * scale_factor) - padding))
