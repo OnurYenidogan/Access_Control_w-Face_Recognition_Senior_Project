@@ -9,6 +9,11 @@ from tkinter import filedialog
 from datetime import datetime
 import configparser
 from tkinter import messagebox
+from tkcalendar import DateEntry
+import time
+from tkinter import simpledialog
+from datetime import datetime as dt, time as tm
+
 
 """Gereksiz olanlar projeden kaldırılmadığı için burada yazıyor"""
 
@@ -20,6 +25,112 @@ def batch_add_faces():
     """        folder_path = filedialog.askdirectory()
     print(folder_path)"""
     subprocess.Popen(['python', os.path.join(sys.path[0], 'encodeToDB.py')])
+
+
+class TimePicker(simpledialog.Dialog):
+    def body(self, master):
+        self.title("Saat Seçin")
+        self.time_var = tk.StringVar(self, value="00:00:00")
+        self.time_entry = ttk.Entry(master, textvariable=self.time_var)
+        self.time_entry.pack()
+        return self.time_entry
+
+    def apply(self):
+        self.result = self.time_var.get()
+
+
+class TimeCalculatorWindow:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Zaman Hesaplama")
+
+        # PostgreSQL veritabanına bağlanma işlemi
+        self.conn = DBconn()
+
+        # Kişi isimlerini çeken sorgu
+        self.cur = self.conn.cursor()
+        self.cur.execute(f"SELECT name FROM faces;")
+        self.names = [name[0] for name in self.cur.fetchall()]
+
+        # Kullanıcı arayüz elemanları oluşturma
+        self.name_label = ttk.Label(master, text="İsim")
+        self.name_label.pack()
+        self.name_var = tk.StringVar()
+        self.name_dropdown = ttk.Combobox(master, textvariable=self.name_var, values=self.names)
+        self.name_dropdown.pack()
+
+        self.start_date_label = ttk.Label(master, text="Başlangıç Tarihi")
+        self.start_date_label.pack()
+        self.start_date_entry = DateEntry(master)
+        self.start_date_entry.pack()
+
+        self.start_time_label = ttk.Label(master, text="Başlangıç Saati")
+        self.start_time_label.pack()
+        self.start_time_button = ttk.Button(master, text="Saat Seçin", command=self.set_start_time)
+        self.start_time_button.pack()
+
+        self.end_date_label = ttk.Label(master, text="Bitiş Tarihi")
+        self.end_date_label.pack()
+        self.end_date_entry = DateEntry(master)
+        self.end_date_entry.pack()
+
+        self.end_time_label = ttk.Label(master, text="Bitiş Saati")
+        self.end_time_label.pack()
+        self.end_time_button = ttk.Button(master, text="Saat Seçin", command=self.set_end_time)
+        self.end_time_button.pack()
+
+        self.calculate_button = ttk.Button(master, text="Hesapla", command=self.calculate_time)
+        self.calculate_button.pack()
+
+    def set_start_time(self):
+        time_picker = TimePicker(self.master)
+        self.start_time = time.strptime(time_picker.result, '%H:%M:%S')
+
+    def set_end_time(self):
+        time_picker = TimePicker(self.master)
+        self.end_time = time.strptime(time_picker.result, '%H:%M:%S')
+
+    def calculate_time(self):
+        selected_name = self.name_var.get()
+        start_date = self.start_date_entry.get_date()
+        start_time = self.start_time
+        start_datetime = dt.combine(start_date, tm(start_time.tm_hour, start_time.tm_min, start_time.tm_sec))
+        end_date = self.end_date_entry.get_date()
+        end_time = self.end_time
+        end_datetime = dt.combine(end_date, tm(end_time.tm_hour, end_time.tm_min, end_time.tm_sec))
+
+        self.cur.execute(f"""
+            SELECT datetime, action FROM log 
+            JOIN faces ON faces.id = log.face_id
+            WHERE name = %s AND datetime BETWEEN %s AND %s 
+            ORDER BY datetime ASC;
+            """, (selected_name, start_datetime, end_datetime))
+
+        log_entries = self.cur.fetchall()
+
+        if log_entries:
+            total_time = self.calculate_total_time(log_entries)
+            messagebox.showinfo("Sonuç",
+                                f"{selected_name}, belirtilen tarih aralığında toplam {total_time} saniye içeride kaldı.")
+        else:
+            messagebox.showinfo("Sonuç", f"{selected_name}, belirtilen tarih aralığında hiç kaydedilmedi.")
+
+        # Sorguları temizleme ve bağlantıyı kapatma
+        self.cur.close()
+        self.conn.close()
+
+    def calculate_total_time(self, log_entries):
+        total_time = 0
+        entry_time = None
+
+        for log in log_entries:
+            if log[1] == 'i':
+                entry_time = log[0]
+            elif log[1] == 'o' and entry_time is not None:
+                total_time += (log[0] - entry_time).total_seconds()
+                entry_time = None
+
+        return total_time
 
 
 class AddFaceWindow:
@@ -39,8 +150,6 @@ class AddFaceWindow:
         """        folder_path = filedialog.askdirectory()
         print(folder_path)"""
         subprocess.Popen(['python', os.path.join(sys.path[0], 'encodeToDB.py')])
-
-
 
 
 class ShowTableWindow:
@@ -301,6 +410,10 @@ def main():
     add_button2 = tk.Button(root, text="Kişi Ekle", command=batch_add_faces,
                             width=20, height=2, bg="red", fg="white", font=("Helvetica", 16))
     add_button2.pack(padx=10, pady=10)
+
+    add_button1 = tk.Button(root, text="Kaytarma", command=lambda: TimeCalculatorWindow(tk.Toplevel()),
+                            width=20, height=2, bg="green", fg="white", font=("Helvetica", 16))
+    add_button1.pack(padx=10, pady=10)
 
     root.mainloop()
 

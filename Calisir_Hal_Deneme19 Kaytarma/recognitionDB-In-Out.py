@@ -122,8 +122,9 @@ class FaceRecognition:
 
                 best_match_index = np.argmin(face_distances)
                 if matches[best_match_index]:
+                    face_id = self.known_face_ids[best_match_index]  # This is where we get the correct face_id
                     name = self.known_face_names[best_match_index]
-                    yazdirmalikName= name
+                    yazdirmalikName = name
                     confidence = face_confidence(face_distances[best_match_index])
 
                 self.face_names.append(f'{name} ({confidence})')
@@ -131,7 +132,7 @@ class FaceRecognition:
             #self.process_current_frame = not self.process_current_frame
 
             # Display the results
-            for face_id, (top, right, bottom, left), name in zip(self.known_face_ids, self.face_locations, self.face_names):
+            for (top, right, bottom, left), name in zip(self.face_locations, self.face_names):
                 # Scale back up face locations since the frame we detected in was scaled to 1/4 size
                 top *= kucultmeOranı
                 right *= kucultmeOranı
