@@ -1,3 +1,5 @@
+import sys
+
 import cv2
 from tkinter import *
 import tkinter.simpledialog
@@ -10,7 +12,7 @@ from PIL import Image, ImageTk
 
 
 class App:
-    def __init__(self, window, window_title, video_source=1):
+    def __init__(self, window, window_title, video_source = sys.argv[1]):
         self.window = window
         self.window.title(window_title)
         self.video_source = video_source

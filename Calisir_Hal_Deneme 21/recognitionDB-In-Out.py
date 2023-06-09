@@ -140,27 +140,36 @@ class FaceRecognition:
                 bottom *= kucultmeOranı
                 left *= kucultmeOranı
 
-                pil_image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                pil_image = Image.fromarray(rgb_frame)  # BGR to RGB conversion
 
                 draw = ImageDraw.Draw(pil_image)
 
                 font = ImageFont.load_default()
 
-                text_bbox = draw.textbbox((left + 6, bottom - text_height - 5), name, font=font)
-                text_width = text_bbox[2] - text_bbox[0]
-                text_height = text_bbox[3] - text_bbox[1]
+                padding = 10  # Increase or decrease for more or less padding
 
-                draw.rectangle(((left, bottom - text_height - 10), (right, bottom)), fill=(0, 0, 255))
-                draw.text((left + 6, bottom - text_height - 5), name, fill=(255, 255, 255, 255))
+                # Calculate text width & height to draw the transparent boxes
+                text_size = draw.textsize(name, font)
+                text_width = text_size[0]
+                text_height = text_size[1]
 
-                frame = np.array(pil_image)
+                # Draw a box around the face
+                draw.rectangle(((left, top), (right, bottom)), outline=(0, 255, 0))
+
+                # Draw a label with a name below the face
+                draw.rectangle(((left - padding, bottom + padding),
+                                (right + padding, bottom + text_height + 2 * padding)), fill=(255, 0, 0))
+                draw.text((left, bottom + padding), name, fill=(255, 255, 255, 255))
+
+                # Convert the image back to BGR for displaying with opencv
+                rgb_frame = np.array(pil_image)
 
                 raw_name = name.split(" (")[0]
                 if 'Unknown' not in raw_name:
                     face_id = self.known_face_ids[self.known_face_names.index(raw_name)]
                     add_to_database(face_id)
 
-            image = Image.fromarray(frame)
+            image = Image.fromarray(rgb_frame)
             photo = ImageTk.PhotoImage(image)
 
             label.config(image=photo)

@@ -15,7 +15,45 @@ from tkinter import messagebox
 """global pgConn
 pgConn = DBconn()"""
 
+def open_CameraSelectKisiEkle():
+    global camSelect
+    camSelect = CameraSelectKisiEkle(tk.Toplevel())
+class CameraSelectKisiEkle:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Kamera Seçimi")
+        self.master.configure(background='#F5F5F5')
 
+        self.BagliCams = get_camera_list()
+
+
+
+        # Kamera listesi için dropdown
+        self.camera_list = ttk.Combobox(self.master, values=[f"Kamera {cam}" for cam in self.BagliCams],
+                                        state='readonly', width=20)
+        self.camera_list.current(0)
+        self.camera_list.grid(row=1, column=0, columnspan=2, padx=10, pady=10)
+
+        # Seçimi onaylamak için buton
+        self.confirm_button = ttk.Button(self.master, text="Kamera Başlat", command=self.cameraStart)
+        self.confirm_button.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="s")
+        self.confirm_button.configure(style='AccentButton.TButton')
+        self.master.bind("<Return>", lambda event: self.cameraStart())
+
+    def cameraStart(self):
+        camera_number_str = self.camera_list.get().split("Kamera ")[1]
+        cmrNo = int(camera_number_str)
+        #CameraWindowIn_Out.recognation(self, cmrNo)
+        db_file = os.path.join(sys.path[0], 'encodeToDBWithCam.py')
+        subprocess.Popen(['python', db_file,  cmrNo])
+
+    def cameraStart(self):
+        print(self.camera_list.get())
+        camera_number_str = self.camera_list.get().split("Kamera ")[1]
+        print(camera_number_str)
+        #CameraWindowIn_Out.recognation(self, camera_number_str)
+        db_file = os.path.join(sys.path[0], 'encodeToDBWithCam.py')
+        subprocess.Popen(['python', db_file , camera_number_str])
 def batch_add_faces():
     """        folder_path = filedialog.askdirectory()
     print(folder_path)"""
@@ -298,9 +336,13 @@ def main():
                             width=20, height=2, bg="green", fg="white", font=("Helvetica", 16))
     add_button1.pack(padx=10, pady=10)
 
-    add_button2 = tk.Button(root, text="Kişi Ekle", command=batch_add_faces,
+    add_button2 = tk.Button(root, text="Toplu Kişi Ekle", command=batch_add_faces,
                             width=20, height=2, bg="red", fg="white", font=("Helvetica", 16))
     add_button2.pack(padx=10, pady=10)
+
+    start_button = tk.Button(root, text="Kamera İle Kişi Ekle", command=open_CameraSelectKisiEkle,
+                             width=20, height=2, bg="blue", fg="white", font=("Helvetica", 16))
+    start_button.pack(padx=10, pady=10)
 
     root.mainloop()
 
