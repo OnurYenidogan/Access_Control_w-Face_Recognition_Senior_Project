@@ -5,7 +5,7 @@ import face_recognition
 import numpy as np
 from datetime import datetime
 from some_functions import DBconn
-from tkinter import Tk, Label
+from tkinter import Tk, Label, TclError
 from PIL import Image, ImageTk, ImageDraw, ImageFont
 
 global Kamera_Tipi
@@ -94,20 +94,23 @@ class FaceRecognition:
         label = Label(root)
         label.pack()
 
-        while True:
+        text_height = 0
+        text_width = 0
 
+        while True:
+            try:
+                if not root.winfo_exists():
+                    break
+            except TclError:
+                break
             ret, frame = video_capture.read()
             kucultmeOranı = 1  # detection daha küçük ölçekte yapılır
-            # Only process every other frame of video to save time
-            # if self.process_current_frame:
+
             small_frame = frame
-            # Resize frame of video to 1/4 size for faster face recognition processing
             small_frame = cv2.resize(frame, (0, 0), fx=1 / kucultmeOranı, fy=1 / kucultmeOranı)
 
-            # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
             rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            # Find all the faces and face encodings in the current frame of video
             self.face_locations = face_recognition.face_locations(rgb_small_frame)
 
             self.face_encodings = face_recognition.face_encodings(rgb_frame, [
@@ -116,13 +119,11 @@ class FaceRecognition:
 
             self.face_names = []
             for face_encoding in self.face_encodings:
-                # See if the face is a match for the known face(s)
                 matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
                 name = "Unknown"
                 confidence = '???'
-                yazdirmalikName = "Unknown"  # Initialize it here
+                yazdirmalikName = "Unknown"
 
-                # Calculate the shortest distance to face
                 face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
 
                 best_match_index = np.argmin(face_distances)
@@ -132,8 +133,6 @@ class FaceRecognition:
                     confidence = face_confidence(face_distances[best_match_index])
 
                 self.face_names.append(f'{name} ({confidence})')
-
-            # self.process_current_frame = not self.process_current_frame
 
             for (top, right, bottom, left), name in zip(self.face_locations, self.face_names):
                 top *= kucultmeOranı
@@ -145,15 +144,17 @@ class FaceRecognition:
 
                 draw = ImageDraw.Draw(pil_image)
 
-                draw.rectangle(((left, top), (right, bottom)), outline=(0, 255, 0))
+                font = ImageFont.load_default()
 
-                text_width, text_height = draw.textsize(name)
+                text_bbox = draw.textbbox((left + 6, bottom - text_height - 5), name, font=font)
+                text_width = text_bbox[2] - text_bbox[0]
+                text_height = text_bbox[3] - text_bbox[1]
+
                 draw.rectangle(((left, bottom - text_height - 10), (right, bottom)), fill=(0, 0, 255))
                 draw.text((left + 6, bottom - text_height - 5), name, fill=(255, 255, 255, 255))
 
                 frame = np.array(pil_image)
 
-                # Use the correct face_id for each recognized face
                 raw_name = name.split(" (")[0]
                 if 'Unknown' not in raw_name:
                     face_id = self.known_face_ids[self.known_face_names.index(raw_name)]
@@ -172,6 +173,7 @@ class FaceRecognition:
 
         video_capture.release()
         cv2.destroyAllWindows()
+
 
 
 if __name__ == '__main__':
