@@ -290,7 +290,7 @@ def main():
     root = tk.Tk()
     root.title("Ana Pencere")
 
-    start_button = tk.Button(root, text="Kamerayı Başlat", command=open_CameraSelect,
+    start_button = tk.Button(root, text="Giriş/Çıkış Tespitni Başlat", command=open_CameraSelect,
                              width=20, height=2, bg="blue", fg="white", font=("Helvetica", 16))
     start_button.pack(padx=10, pady=10)
 
