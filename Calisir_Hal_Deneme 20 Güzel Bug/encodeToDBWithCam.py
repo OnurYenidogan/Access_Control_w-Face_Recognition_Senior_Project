@@ -10,7 +10,7 @@ from PIL import Image, ImageTk
 
 
 class App:
-    def __init__(self, window, window_title, video_source=0):
+    def __init__(self, window, window_title, video_source=1):
         self.window = window
         self.window.title(window_title)
         self.video_source = video_source
