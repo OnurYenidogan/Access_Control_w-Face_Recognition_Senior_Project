@@ -144,22 +144,19 @@ class FaceRecognition:
 
                 draw = ImageDraw.Draw(pil_image)
 
-                font = ImageFont.load_default()
+                font = ImageFont.truetype("arial.ttf", 20)  # Change font to arial and its size to 20
 
                 padding = 10  # Increase or decrease for more or less padding
-
                 # Calculate text width & height to draw the transparent boxes
-                text_size = draw.textsize(name, font)
-                text_width = text_size[0]
-                text_height = text_size[1]
+                text_width, text_height = draw.textbbox((0, 0), name, font=font)[2:4]
 
                 # Draw a box around the face
-                draw.rectangle(((left, top), (right, bottom)), outline=(0, 255, 0))
+                draw.rectangle(((left, top), (right, bottom)), outline=(0, 255, 0), width=2)
 
                 # Draw a label with a name below the face
                 draw.rectangle(((left - padding, bottom + padding),
-                                (right + padding, bottom + text_height + 2 * padding)), fill=(255, 0, 0))
-                draw.text((left, bottom + padding), name, fill=(255, 255, 255, 255))
+                                (left + text_width + padding, bottom + text_height + 2 * padding)), fill=(255, 0, 0))
+                draw.text((left, bottom + padding), name, font=font, fill=(255, 255, 255, 255))
 
                 # Convert the image back to BGR for displaying with opencv
                 rgb_frame = np.array(pil_image)
