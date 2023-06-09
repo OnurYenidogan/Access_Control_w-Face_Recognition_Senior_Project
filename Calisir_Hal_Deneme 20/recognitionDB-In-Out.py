@@ -1,10 +1,12 @@
+import cv2
 import math
 import sys
-import cv2
 import face_recognition
 import numpy as np
 from datetime import datetime
 from some_functions import DBconn
+from tkinter import Tk, Label
+from PIL import Image, ImageTk, ImageDraw, ImageFont
 
 global Kamera_Tipi
 if sys.argv[2] == "TypeA":
@@ -30,8 +32,6 @@ def add_to_database(face_id):
     conn.commit()
     print(face_id)
 
-
-
 # Fonksiyonu kullanarak veritabanına kayıt ekleme
 
 
@@ -45,7 +45,6 @@ def face_confidence(face_distance, face_match_threshold=0.6):
     else:
         value = (linear_val + ((1.0 - linear_val) * math.pow((linear_val - 0.5) * 2, 0.2))) * 100
         return str(round(value, 2)) + '%'
-
 
 class FaceRecognition:
     face_locations = []
@@ -91,23 +90,29 @@ class FaceRecognition:
         if not video_capture.isOpened():
             sys.exit('Video source not found...')
 
+        root = Tk()
+        label = Label(root)
+        label.pack()
+
         while True:
+
             ret, frame = video_capture.read()
-            kucultmeOranı=1#detection daha küçük ölçekte yapılır
+            kucultmeOranı = 1  # detection daha küçük ölçekte yapılır
             # Only process every other frame of video to save time
-            #if self.process_current_frame:
+            # if self.process_current_frame:
             small_frame = frame
             # Resize frame of video to 1/4 size for faster face recognition processing
-            small_frame = cv2.resize(frame, (0, 0), fx=1/kucultmeOranı, fy=1/kucultmeOranı)
-
+            small_frame = cv2.resize(frame, (0, 0), fx=1 / kucultmeOranı, fy=1 / kucultmeOranı)
 
             # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
-            rgb_small_frame = small_frame[:, :, ::-1]
-            rgb_frame = frame[:, :, ::-1]
+            rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             # Find all the faces and face encodings in the current frame of video
             self.face_locations = face_recognition.face_locations(rgb_small_frame)
 
-            self.face_encodings = face_recognition.face_encodings(rgb_frame, [(top*kucultmeOranı, right*kucultmeOranı, bottom*kucultmeOranı, left*kucultmeOranı) for top, right, bottom, left in self.face_locations])
+            self.face_encodings = face_recognition.face_encodings(rgb_frame, [
+                (top * kucultmeOranı, right * kucultmeOranı, bottom * kucultmeOranı, left * kucultmeOranı) for
+                top, right, bottom, left in self.face_locations])
 
             self.face_names = []
             for face_encoding in self.face_encodings:
@@ -123,76 +128,48 @@ class FaceRecognition:
                 best_match_index = np.argmin(face_distances)
                 if matches[best_match_index]:
                     name = self.known_face_names[best_match_index]
-                    yazdirmalikName= name
+                    yazdirmalikName = name
                     confidence = face_confidence(face_distances[best_match_index])
 
                 self.face_names.append(f'{name} ({confidence})')
 
-            #self.process_current_frame = not self.process_current_frame
+            # self.process_current_frame = not self.process_current_frame
 
-            # Display the results
-            # Display the results
-            # Display the results
             for (top, right, bottom, left), name in zip(self.face_locations, self.face_names):
-                # Scale back up face locations since the frame we detected in was scaled to 1/4 size
                 top *= kucultmeOranı
                 right *= kucultmeOranı
                 bottom *= kucultmeOranı
                 left *= kucultmeOranı
 
-                # Frame thickness
-                frame_thickness = 2
+                pil_image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
-                # Draw a box around the face
-                cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0),
-                              frame_thickness)  # Change the color to red
+                draw = ImageDraw.Draw(pil_image)
 
-                # Calculate text width & height to draw the transparent boxes
-                font = cv2.FONT_HERSHEY_DUPLEX
-                font_scale = 0.68
-                font_thickness = 1
-                text_size = cv2.getTextSize(name, font, font_scale, font_thickness)[0]
+                draw.rectangle(((left, top), (right, bottom)), outline=(0, 255, 0))
 
-                # Scale factors for width and height
-                scale_factor = 1.2  # Adjust this value to your preference
+                text_width, text_height = draw.textsize(name)
+                draw.rectangle(((left, bottom - text_height - 10), (right, bottom)), fill=(0, 0, 255))
+                draw.text((left + 6, bottom - text_height - 5), name, fill=(255, 255, 255, 255))
 
-                # Draw a filled box around the name
-                padding = int(scale_factor * 5)  # Adjust this value to your preference
-                text_offset_x = left
-                text_offset_y = bottom + frame_thickness + int(
-                    text_size[1] * scale_factor) + padding  # Adjust for frame thickness
-                box_coords = ((text_offset_x - padding, text_offset_y + padding),
-                              (text_offset_x + text_size[0] + padding,
-                               text_offset_y - int(text_size[1] * scale_factor) - padding))
-                cv2.rectangle(frame, box_coords[0], box_coords[1], (0, 0, 255), cv2.FILLED)  # Change the color to green
-
-                # Draw the text
-                cv2.putText(frame, name, (text_offset_x, text_offset_y - padding), font, font_scale, (255, 255, 255),
-                            font_thickness)
-
-                # Let's say `name` is the name with confidence, like 'Onur Yenidogan (94.46%)'
-                # And `raw_name` is just the name without confidence, like 'Onur Yenidogan'
-
-                raw_name = name.split(" (")[0]  # This will split the name at the space before the '(' and take the first part
+                frame = np.array(pil_image)
 
                 # Use the correct face_id for each recognized face
+                raw_name = name.split(" (")[0]
                 if 'Unknown' not in raw_name:
                     face_id = self.known_face_ids[self.known_face_names.index(raw_name)]
                     add_to_database(face_id)
 
-            # Display the resulting image
-            if Kamera_Tipi == 'i' :
-                Baslik = "Cam "+sys.argv[1]+" Entry"
-            else:
-                Baslik = "Cam " + sys.argv[1] + " Exit"
-            cv2.imshow(Baslik + ' Face Reco', frame)
+            image = Image.fromarray(frame)
+            photo = ImageTk.PhotoImage(image)
 
+            label.config(image=photo)
+            label.image = photo
 
-            # Hit 'q' on the keyboard to quit!
+            root.update()
+
             if cv2.waitKey(1) == ord('q'):
                 break
 
-        # Release handle to the webcam
         video_capture.release()
         cv2.destroyAllWindows()
 
