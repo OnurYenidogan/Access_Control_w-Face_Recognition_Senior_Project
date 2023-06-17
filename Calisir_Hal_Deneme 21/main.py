@@ -15,9 +15,7 @@ from tkinter import messagebox
 """global pgConn
 pgConn = DBconn()"""
 
-def open_CameraSelectKisiEkle():
-    global camSelect
-    camSelect = CameraSelectKisiEkle(tk.Toplevel())
+
 class CameraSelectKisiEkle:
     def __init__(self, master):
         self.master = master
@@ -25,9 +23,6 @@ class CameraSelectKisiEkle:
         self.master.configure(background='#F5F5F5')
 
         self.BagliCams = get_camera_list()
-
-
-
         # Kamera listesi için dropdown
         self.camera_list = ttk.Combobox(self.master, values=[f"Kamera {cam}" for cam in self.BagliCams],
                                         state='readonly', width=20)
@@ -41,19 +36,40 @@ class CameraSelectKisiEkle:
         self.master.bind("<Return>", lambda event: self.cameraStart())
 
     def cameraStart(self):
-        camera_number_str = self.camera_list.get().split("Kamera ")[1]
-        cmrNo = int(camera_number_str)
-        #CameraWindowIn_Out.recognation(self, cmrNo)
-        db_file = os.path.join(sys.path[0], 'encodeToDBWithCam.py')
-        subprocess.Popen(['python', db_file,  cmrNo])
-
-    def cameraStart(self):
         print(self.camera_list.get())
         camera_number_str = self.camera_list.get().split("Kamera ")[1]
         print(camera_number_str)
-        #CameraWindowIn_Out.recognation(self, camera_number_str)
+        CameraWindowKisiEkle.recognation(self, camera_number_str)
+
+
+class CameraWindowKisiEkle:
+    def __init__(self, master, person_list, cam_No):
+        self.master = master
+        self.master.title("Cam" + cam_No + " In")
+        self.person_list = person_list
+        self.cam_No = cam_No
+        print(cam_No)
+        self.listbox = tk.Listbox(self.master)
+        for person in person_list:
+            self.listbox.insert(tk.END, person)
+        self.listbox.pack()
+        self.button = tk.Button(self.master, text="Kişi Ekle", command=self.add_person_window)
+        self.button.pack()
+        self.camera_label = tk.Label(self.master)
+        self.camera_label.pack()
+
+    def recognation(self, cam_No):
         db_file = os.path.join(sys.path[0], 'encodeToDBWithCam.py')
-        subprocess.Popen(['python', db_file , camera_number_str])
+        subprocess.Popen(['python', db_file, cam_No])
+
+
+def open_CameraSelectKisiEkle():
+    global camSelectKisiEkle
+    camSelectKisiEkle = CameraSelectKisiEkle(tk.Toplevel())
+
+
+
+
 def batch_add_faces():
     """        folder_path = filedialog.askdirectory()
     print(folder_path)"""
@@ -167,11 +183,6 @@ class CameraSelect:
         self.confirm_button.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="s")
         self.confirm_button.configure(style='AccentButton.TButton')
         self.master.bind("<Return>", lambda event: self.cameraStart())
-
-    def cameraStart(self):
-        camera_number_str = self.camera_list.get().split("Kamera ")[1]
-        cmrNo = int(camera_number_str)
-        CameraWindowIn_Out.recognation(self, cmrNo, self.camera_type.get())
 
     def cameraStart(self):
         print(self.camera_list.get())
