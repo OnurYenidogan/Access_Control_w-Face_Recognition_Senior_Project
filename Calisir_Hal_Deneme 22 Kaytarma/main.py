@@ -9,6 +9,7 @@ from tkinter import filedialog
 from datetime import datetime
 import configparser
 from tkinter import messagebox
+from datetime import timedelta
 
 """Gereksiz olanlar projeden kaldırılmadığı için burada yazıyor"""
 
@@ -16,10 +17,6 @@ from tkinter import messagebox
 pgConn = DBconn()"""
 
 
-
-
-from tkinter import ttk
-import tkinter as tk
 
 class PresenceCalculatorWindow:
     def __init__(self, master):
@@ -53,6 +50,10 @@ class PresenceCalculatorWindow:
 
         self.calculate_button = ttk.Button(master, text="Hesapla", command=self.calculate_presence)
         self.calculate_button.pack()
+
+        # Toplam süre etiketi oluşturma
+        self.total_presence_label = ttk.Label(master)
+        self.total_presence_label.pack()
 
         # Tablo oluşturma
         self.tree = ttk.Treeview(master, columns=('ID', 'Group', 'Entry Time', 'Exit Time', 'Duration'), show='headings', height=10)
@@ -111,8 +112,16 @@ class PresenceCalculatorWindow:
             self.tree.delete(i)
 
         # Add data to the table
+        total_presence_seconds = 0  # Toplam süreyi hesaplamak için bir değişken
         for entry in presence_entries:
             self.tree.insert('', 'end', values=entry)
+            total_presence_seconds += entry[4].total_seconds()  # Toplam süreyi hesapla
+
+        # Toplam süreyi timedelta ile gün, saat, dakika, saniye formatına dönüştürme
+        total_presence = timedelta(seconds=total_presence_seconds)
+
+        # Toplam süreyi etikete yazma
+        self.total_presence_label['text'] = f'Toplam süre: {total_presence}'
 
 
 
