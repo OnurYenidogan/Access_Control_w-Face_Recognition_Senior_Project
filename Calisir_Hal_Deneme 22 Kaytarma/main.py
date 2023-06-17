@@ -16,6 +16,11 @@ from tkinter import messagebox
 pgConn = DBconn()"""
 
 
+
+
+from tkinter import ttk
+import tkinter as tk
+
 class PresenceCalculatorWindow:
     def __init__(self, master):
         self.master = master
@@ -26,14 +31,14 @@ class PresenceCalculatorWindow:
 
         # Kişi isimlerini çeken sorgu
         self.cur = self.conn.cursor()
-        self.cur.execute(f"SELECT face_id FROM log;")
-        self.ids = [id[0] for id in self.cur.fetchall()]
+        self.cur.execute(f"SELECT id, name FROM faces;")
+        self.ids = [(id[0], id[1]) for id in self.cur.fetchall()]
 
         # Kullanıcı arayüz elemanları oluşturma
         self.id_label = ttk.Label(master, text="ID")
         self.id_label.pack()
         self.id_var = tk.StringVar()
-        self.id_dropdown = ttk.Combobox(master, textvariable=self.id_var, values=self.ids)
+        self.id_dropdown = ttk.Combobox(master, textvariable=self.id_var, values=[id[1] for id in self.ids])
         self.id_dropdown.pack()
 
         self.start_datetime_label = ttk.Label(master, text="Başlangıç Tarih ve Saati (YYYY-MM-DD HH:MI:SS)")
@@ -49,8 +54,18 @@ class PresenceCalculatorWindow:
         self.calculate_button = ttk.Button(master, text="Hesapla", command=self.calculate_presence)
         self.calculate_button.pack()
 
+        # Tablo oluşturma
+        self.tree = ttk.Treeview(master, columns=('ID', 'Group', 'Entry Time', 'Exit Time', 'Duration'), show='headings', height=10)
+        self.tree.heading('ID', text='ID')
+        self.tree.heading('Group', text='Group')
+        self.tree.heading('Entry Time', text='Entry Time')
+        self.tree.heading('Exit Time', text='Exit Time')
+        self.tree.heading('Duration', text='Duration')
+        self.tree.pack()
+
     def calculate_presence(self):
-        selected_id = self.id_var.get()
+        selected_name = self.id_var.get()
+        selected_id = [id[0] for id in self.ids if id[1] == selected_name][0]
         start_datetime = self.start_datetime_entry.get()
         end_datetime = self.end_datetime_entry.get()
 
@@ -61,7 +76,8 @@ class PresenceCalculatorWindow:
                 datetime, 
                 action,
                 LAG(action) OVER (PARTITION BY face_id ORDER BY datetime) as prev_action,
-                LEAD(action) OVER (PARTITION BY face_id ORDER BY datetime) as next_action
+                LEAD(action) OVER (PARTITION BY face_id ORDER BY datetime)
+                                next_action
               FROM log
               WHERE face_id = %s
                 AND datetime BETWEEN %s AND %s
@@ -88,20 +104,21 @@ class PresenceCalculatorWindow:
             ORDER BY enter_time;
             """, (selected_id, start_datetime, end_datetime))
 
-
         presence_entries = self.cur.fetchall()
 
-        if presence_entries:
-            total_presence = sum(entry[4].total_seconds() for entry in presence_entries)
+        # Clear table
+        for i in self.tree.get_children():
+            self.tree.delete(i)
 
-            messagebox.showinfo("Sonuç",
-                                f"ID: {selected_id} belirtilen tarih aralığında toplam {total_presence} süre içeride kaldı.")
-        else:
-            messagebox.showinfo("Sonuç", f"ID: {selected_id} belirtilen tarih aralığında hiç kaydedilmedi.")
+        # Add data to the table
+        for entry in presence_entries:
+            self.tree.insert('', 'end', values=entry)
 
-        # Sorguları temizleme ve bağlantıyı kapatma
-        self.cur.close()
-        self.conn.close()
+
+
+
+
+
 
 
 class CameraSelectKisiEkle:
