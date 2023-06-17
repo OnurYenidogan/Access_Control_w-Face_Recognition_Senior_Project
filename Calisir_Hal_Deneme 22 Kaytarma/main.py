@@ -10,6 +10,8 @@ from datetime import datetime
 import configparser
 from tkinter import messagebox
 from datetime import timedelta
+from tkcalendar import DateEntry
+import datetime
 
 """Gereksiz olanlar projeden kaldırılmadığı için burada yazıyor"""
 
@@ -38,15 +40,41 @@ class PresenceCalculatorWindow:
         self.id_dropdown = ttk.Combobox(master, textvariable=self.id_var, values=[id[1] for id in self.ids])
         self.id_dropdown.pack()
 
-        self.start_datetime_label = ttk.Label(master, text="Başlangıç Tarih ve Saati (YYYY-MM-DD HH:MI:SS)")
-        self.start_datetime_label.pack()
-        self.start_datetime_entry = ttk.Entry(master)
-        self.start_datetime_entry.pack()
+        self.start_date_label = ttk.Label(master, text="Başlangıç Tarihi")
+        self.start_date_label.pack()
+        self.start_date_entry = DateEntry(master)
+        self.start_date_entry.pack()
 
-        self.end_datetime_label = ttk.Label(master, text="Bitiş Tarih ve Saati (YYYY-MM-DD HH:MI:SS)")
-        self.end_datetime_label.pack()
-        self.end_datetime_entry = ttk.Entry(master)
-        self.end_datetime_entry.pack()
+        self.start_hour_label = ttk.Label(master, text="Başlangıç Saati")
+        self.start_hour_label.pack()
+        self.start_hour_spin = tk.Spinbox(master, from_=0, to=23, width=2)
+        self.start_hour_spin.pack()
+        self.start_minute_label = ttk.Label(master, text="Başlangıç Dakikası")
+        self.start_minute_label.pack()
+        self.start_minute_spin = tk.Spinbox(master, from_=0, to=59, width=2)
+        self.start_minute_spin.pack()
+        self.start_second_label = ttk.Label(master, text="Başlangıç Saniyesi")
+        self.start_second_label.pack()
+        self.start_second_spin = tk.Spinbox(master, from_=0, to=59, width=2)
+        self.start_second_spin.pack()
+
+        self.end_date_label = ttk.Label(master, text="Bitiş Tarihi")
+        self.end_date_label.pack()
+        self.end_date_entry = DateEntry(master)
+        self.end_date_entry.pack()
+
+        self.end_hour_label = ttk.Label(master, text="Bitiş Saati")
+        self.end_hour_label.pack()
+        self.end_hour_spin = tk.Spinbox(master, from_=0, to=23, width=2)
+        self.end_hour_spin.pack()
+        self.end_minute_label = ttk.Label(master, text="Bitiş Dakikası")
+        self.end_minute_label.pack()
+        self.end_minute_spin = tk.Spinbox(master, from_=0, to=59, width=2)
+        self.end_minute_spin.pack()
+        self.end_second_label = ttk.Label(master, text="Bitiş Saniyesi")
+        self.end_second_label.pack()
+        self.end_second_spin = tk.Spinbox(master, from_=0, to=59, width=2)
+        self.end_second_spin.pack()
 
         self.calculate_button = ttk.Button(master, text="Hesapla", command=self.calculate_presence)
         self.calculate_button.pack()
@@ -66,9 +94,28 @@ class PresenceCalculatorWindow:
 
     def calculate_presence(self):
         selected_name = self.id_var.get()
-        selected_id = [id[0] for id in self.ids if id[1] == selected_name][0]
-        start_datetime = self.start_datetime_entry.get()
-        end_datetime = self.end_datetime_entry.get()
+        matching_ids = [id[0] for id in self.ids if id[1] == selected_name]
+
+        # Check if there are any matching IDs
+        if not matching_ids:
+            print(f"No matching IDs found for name: {selected_name}")
+            return
+
+        selected_id = matching_ids[0]
+
+        start_date = self.start_date_entry.get_date()
+        start_hour = int(self.start_hour_spin.get())
+        start_minute = int(self.start_minute_spin.get())
+        start_second = int(self.start_second_spin.get())
+        start_time = datetime.time(start_hour, start_minute, start_second)
+        start_datetime = datetime.datetime.combine(start_date, start_time)
+
+        end_date = self.end_date_entry.get_date()
+        end_hour = int(self.end_hour_spin.get())
+        end_minute = int(self.end_minute_spin.get())
+        end_second = int(self.end_second_spin.get())
+        end_time = datetime.time(end_hour, end_minute, end_second)
+        end_datetime = datetime.datetime.combine(end_date, end_time)
 
         self.cur.execute(f"""
             WITH ordered_logs AS (
@@ -77,8 +124,7 @@ class PresenceCalculatorWindow:
                 datetime, 
                 action,
                 LAG(action) OVER (PARTITION BY face_id ORDER BY datetime) as prev_action,
-                LEAD(action) OVER (PARTITION BY face_id ORDER BY datetime)
-                                next_action
+                LEAD(action) OVER (PARTITION BY face_id ORDER BY datetime) next_action
               FROM log
               WHERE face_id = %s
                 AND datetime BETWEEN %s AND %s
@@ -118,16 +164,10 @@ class PresenceCalculatorWindow:
             total_presence_seconds += entry[4].total_seconds()  # Toplam süreyi hesapla
 
         # Toplam süreyi timedelta ile gün, saat, dakika, saniye formatına dönüştürme
-        total_presence = timedelta(seconds=total_presence_seconds)
+        total_presence = datetime.timedelta(seconds=total_presence_seconds)
 
         # Toplam süreyi etikete yazma
         self.total_presence_label['text'] = f'Toplam süre: {total_presence}'
-
-
-
-
-
-
 
 
 class CameraSelectKisiEkle:
