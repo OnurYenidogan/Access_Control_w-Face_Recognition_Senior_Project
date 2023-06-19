@@ -34,47 +34,65 @@ class PresenceCalculatorWindow:
         self.ids = [(id[0], id[1]) for id in self.cur.fetchall()]
 
         # Kullanıcı arayüz elemanları oluşturma
-        self.id_label = ttk.Label(master, text="ID")
+        self.id_label = ttk.Label(master, text="Kişi Adı")
         self.id_label.pack()
         self.id_var = tk.StringVar()
         self.id_dropdown = ttk.Combobox(master, textvariable=self.id_var, values=[id[1] for id in self.ids])
-        self.id_dropdown.pack()
+        self.id_dropdown.pack(pady=4)
 
-        self.start_date_label = ttk.Label(master, text="Başlangıç Tarihi")
-        self.start_date_label.pack()
-        self.start_date_entry = DateEntry(master)
-        self.start_date_entry.pack()
+        self.start_label = ttk.Label(master, text="Başlangıç (Tarih - Saat)")
+        self.start_label.pack()
 
-        self.start_hour_label = ttk.Label(master, text="Başlangıç Saati")
-        self.start_hour_label.pack()
-        self.start_hour_spin = tk.Spinbox(master, from_=0, to=23, width=2)
-        self.start_hour_spin.pack()
-        self.start_minute_label = ttk.Label(master, text="Başlangıç Dakikası")
-        self.start_minute_label.pack()
-        self.start_minute_spin = tk.Spinbox(master, from_=0, to=59, width=2)
-        self.start_minute_spin.pack()
-        self.start_second_label = ttk.Label(master, text="Başlangıç Saniyesi")
-        self.start_second_label.pack()
-        self.start_second_spin = tk.Spinbox(master, from_=0, to=59, width=2)
-        self.start_second_spin.pack()
+        self.start_frame = ttk.Frame(master)
+        self.start_frame.pack()
 
-        self.end_date_label = ttk.Label(master, text="Bitiş Tarihi")
-        self.end_date_label.pack()
-        self.end_date_entry = DateEntry(master)
-        self.end_date_entry.pack()
+        self.start_date_entry = DateEntry(self.start_frame)
+        self.start_date_entry.pack(side="left")
 
-        self.end_hour_label = ttk.Label(master, text="Bitiş Saati")
-        self.end_hour_label.pack()
-        self.end_hour_spin = tk.Spinbox(master, from_=0, to=23, width=2)
-        self.end_hour_spin.pack()
-        self.end_minute_label = ttk.Label(master, text="Bitiş Dakikası")
-        self.end_minute_label.pack()
-        self.end_minute_spin = tk.Spinbox(master, from_=0, to=59, width=2)
-        self.end_minute_spin.pack()
-        self.end_second_label = ttk.Label(master, text="Bitiş Saniyesi")
-        self.end_second_label.pack()
-        self.end_second_spin = tk.Spinbox(master, from_=0, to=59, width=2)
-        self.end_second_spin.pack()
+        self.start_time_frame = ttk.Frame(self.start_frame)
+        self.start_time_frame.pack(side="left", padx=4)
+
+        self.start_hour_spin = tk.Spinbox(self.start_time_frame, from_=0, to=23, width=2)
+        self.start_hour_spin.pack(side="left")
+        self.hour_label = ttk.Label(self.start_time_frame, text="h")
+        self.hour_label.pack(side="left")
+
+        self.start_minute_spin = tk.Spinbox(self.start_time_frame, from_=0, to=59, width=2)
+        self.start_minute_spin.pack(side="left")
+        self.minute_label = ttk.Label(self.start_time_frame, text="m")
+        self.minute_label.pack(side="left")
+
+        self.start_second_spin = tk.Spinbox(self.start_time_frame, from_=0, to=59, width=2)
+        self.start_second_spin.pack(side="left")
+        self.second_label = ttk.Label(self.start_time_frame, text="s")
+        self.second_label.pack(side="left")
+
+        self.end_label = ttk.Label(master, text="Bitiş (Tarih - Saat)")
+        self.end_label.pack()
+
+        self.end_frame = ttk.Frame(master)
+        self.end_frame.pack()
+
+        self.end_date_entry = DateEntry(self.end_frame)
+        self.end_date_entry.pack(side="left")
+
+        self.end_time_frame = ttk.Frame(self.end_frame)
+        self.end_time_frame.pack(side="left", padx=4)
+
+        self.end_hour_spin = tk.Spinbox(self.end_time_frame, from_=0, to=23, width=2)
+        self.end_hour_spin.pack(side="left")
+        self.hour_label = ttk.Label(self.end_time_frame, text="h")
+        self.hour_label.pack(side="left")
+
+        self.end_minute_spin = tk.Spinbox(self.end_time_frame, from_=0, to=59, width=2)
+        self.end_minute_spin.pack(side="left")
+        self.minute_label = ttk.Label(self.end_time_frame, text="m")
+        self.minute_label.pack(side="left")
+
+        self.end_second_spin = tk.Spinbox(self.end_time_frame, from_=0, to=59, width=2)
+        self.end_second_spin.pack(side="left")
+        self.second_label = ttk.Label(self.end_time_frame, text="s")
+        self.second_label.pack(side="left")
 
         self.calculate_button = ttk.Button(master, text="Hesapla", command=self.calculate_presence)
         self.calculate_button.pack()
@@ -130,7 +148,7 @@ class PresenceCalculatorWindow:
                 AND datetime BETWEEN %s AND %s
             ),
             filtered_logs AS (
-              SELECT * FROM ordered_logs WHERE (action = 'i' AND next_action = 'o') OR (action = 'o' AND prev_action = 'i')
+              SELECT * FROM ordered_logs WHERE (action = 'i' AND (next_action = 'o' OR next_action IS NULL)) OR (action = 'o' AND prev_action = 'i')
             ),
             grouped_logs AS (
               SELECT 
@@ -139,17 +157,28 @@ class PresenceCalculatorWindow:
                 action,
                 SUM(CASE WHEN action = 'i' THEN 1 ELSE 0 END) OVER (PARTITION BY face_id ORDER BY datetime) as group_id
               FROM filtered_logs
+            ),
+            duration_logs AS (
+              SELECT 
+                face_id, 
+                group_id, 
+                MIN(datetime) as enter_time, 
+                CASE 
+                  WHEN MAX(action) = 'i' THEN %s 
+                  ELSE MAX(datetime) 
+                END as exit_time
+              FROM grouped_logs
+              GROUP BY face_id, group_id
             )
             SELECT 
               face_id, 
               group_id, 
-              MIN(datetime) as enter_time, 
-              MAX(datetime) as exit_time,
-              AGE(MAX(datetime), MIN(datetime)) as duration
-            FROM grouped_logs
-            GROUP BY face_id, group_id
+              enter_time, 
+              exit_time,
+              AGE(exit_time, enter_time) as duration
+            FROM duration_logs
             ORDER BY enter_time;
-            """, (selected_id, start_datetime, end_datetime))
+            """, (selected_id, start_datetime, end_datetime, end_datetime))
 
         presence_entries = self.cur.fetchall()
 
