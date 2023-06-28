@@ -10,6 +10,7 @@ import configparser
 from tkinter import messagebox
 from tkcalendar import DateEntry
 import datetime
+from datetime import datetime, time
 
 """Gereksiz olanlar projeden kaldırılmadığı için burada yazıyor"""
 
@@ -49,18 +50,44 @@ class LogSearchWindow:
         self.yes_date_range_radio = ttk.Radiobutton(master, text="Tarih Aralığı Belirt", variable=self.date_range_var, value="yes", command=self.toggle_date_entries)
         self.yes_date_range_radio.pack()
 
-        # Tarih girişi için başlangıç ve bitiş alanları
+        # Tarih ve saat girişi için başlangıç ve bitiş alanları
         self.start_label = ttk.Label(master, text="Başlangıç (Tarih - Saat)")
         self.start_label.pack()
-        self.start_date_entry = DateEntry(master)
-        self.start_date_entry.pack()
+
+        self.start_frame = ttk.Frame(master)
+        self.start_frame.pack()
+
+        self.start_date_entry = DateEntry(self.start_frame, state="disabled")
+        self.start_date_entry.pack(side="left")
+
+        self.start_time_frame = ttk.Frame(self.start_frame)
+        self.start_time_frame.pack(side="left", padx=4)
+
+        self.start_hour_spin = tk.Spinbox(self.start_time_frame, from_=0, to=23, width=2, format="%02.0f", state="disabled")
+        self.start_hour_spin.pack(side="left")
+        self.start_minute_spin = tk.Spinbox(self.start_time_frame, from_=0, to=59, width=2, format="%02.0f", state="disabled")
+        self.start_minute_spin.pack(side="left")
+        self.start_second_spin = tk.Spinbox(self.start_time_frame, from_=0, to=59, width=2, format="%02.0f", state="disabled")
+        self.start_second_spin.pack(side="left")
 
         self.end_label = ttk.Label(master, text="Bitiş (Tarih - Saat)")
         self.end_label.pack()
-        self.end_date_entry = DateEntry(master)
-        self.end_date_entry.pack()
 
-        self.toggle_date_entries()  # Başlangıçta tarih girişi alanlarını gizle
+        self.end_frame = ttk.Frame(master)
+        self.end_frame.pack()
+
+        self.end_date_entry = DateEntry(self.end_frame, state="disabled")
+        self.end_date_entry.pack(side="left")
+
+        self.end_time_frame = ttk.Frame(self.end_frame)
+        self.end_time_frame.pack(side="left", padx=4)
+
+        self.end_hour_spin = tk.Spinbox(self.end_time_frame, from_=0, to=23, width=2, format="%02.0f", state="disabled")
+        self.end_hour_spin.pack(side="left")
+        self.end_minute_spin = tk.Spinbox(self.end_time_frame, from_=0, to=59, width=2, format="%02.0f", state="disabled")
+        self.end_minute_spin.pack(side="left")
+        self.end_second_spin = tk.Spinbox(self.end_time_frame, from_=0, to=59, width=2, format="%02.0f", state="disabled")
+        self.end_second_spin.pack(side="left")
 
         # Action için dropdown menü
         self.action_label = ttk.Label(master, text="Action:")
@@ -82,17 +109,17 @@ class LogSearchWindow:
         self.search_button = ttk.Button(master, text="Sorgula", command=self.search)
         self.search_button.pack()
 
-
-
+        # Results area
         self.tree_frame = tk.Frame(master)
         self.tree_frame.pack(fill='both', expand=True)
 
         self.tree = ttk.Treeview(self.tree_frame)
-        self.tree["columns"] = ("log_id", "face_id", "datetime", "action", "camera_id")
+        self.tree["columns"] = ("log_id", "face_id", "name", "datetime", "action", "camera_id")
 
         self.tree.column("#0", width=0, minwidth=0, stretch=False)
         self.tree.column("log_id", anchor="w", width=80)
         self.tree.column("face_id", anchor="w", width=80)
+        self.tree.column("name", anchor="w", width=80)
         self.tree.column("datetime", anchor="w", width=120)
         self.tree.column("action", anchor="w", width=80)
         self.tree.column("camera_id", anchor="w", width=80)
@@ -100,9 +127,15 @@ class LogSearchWindow:
         self.tree.heading("#0", text="", anchor="w")
         self.tree.heading("log_id", text="Log ID", anchor="w")
         self.tree.heading("face_id", text="Face ID", anchor="w")
+        self.tree.heading("name", text="Name", anchor="w")
         self.tree.heading("datetime", text="Date/Time", anchor="w")
         self.tree.heading("action", text="Action", anchor="w")
         self.tree.heading("camera_id", text="Camera ID", anchor="w")
+
+
+
+
+
 
         self.scrollbar = ttk.Scrollbar(self.tree_frame, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=self.scrollbar.set)
@@ -112,10 +145,22 @@ class LogSearchWindow:
     def toggle_date_entries(self):
         if self.date_range_var.get() == "yes":
             self.start_date_entry.config(state="normal")
+            self.start_hour_spin.config(state="normal")
+            self.start_minute_spin.config(state="normal")
+            self.start_second_spin.config(state="normal")
             self.end_date_entry.config(state="normal")
+            self.end_hour_spin.config(state="normal")
+            self.end_minute_spin.config(state="normal")
+            self.end_second_spin.config(state="normal")
         else:
             self.start_date_entry.config(state="disabled")
+            self.start_hour_spin.config(state="disabled")
+            self.start_minute_spin.config(state="disabled")
+            self.start_second_spin.config(state="disabled")
             self.end_date_entry.config(state="disabled")
+            self.end_hour_spin.config(state="disabled")
+            self.end_minute_spin.config(state="disabled")
+            self.end_second_spin.config(state="disabled")
 
     def search(self):
         name = self.name_var.get() if self.name_var.get() != "Hepsi" else "%"
@@ -124,11 +169,19 @@ class LogSearchWindow:
         camera_id = self.camera_id_var.get() if self.camera_id_var.get() != "Hepsi" else "%"
 
         if date_range == "yes":
-            start_date = self.start_date_entry.get_date().strftime('%Y-%m-%d')
-            end_date = self.end_date_entry.get_date().strftime('%Y-%m-%d')
-            query = f"SELECT * FROM log WHERE face_id IN (SELECT id FROM faces WHERE name LIKE '{name}') AND datetime BETWEEN '{start_date}' AND '{end_date}' AND action LIKE '{action}' AND CAST(camera_id AS TEXT) LIKE '{camera_id}';"
+            start_date = self.start_date_entry.get_date()
+            start_time = time(int(self.start_hour_spin.get()), int(self.start_minute_spin.get()),
+                              int(self.start_second_spin.get()))
+            start_datetime = datetime.combine(start_date, start_time).strftime('%Y-%m-%d %H:%M:%S')
+
+            end_date = self.end_date_entry.get_date()
+            end_time = time(int(self.end_hour_spin.get()), int(self.end_minute_spin.get()),
+                            int(self.end_second_spin.get()))
+            end_datetime = datetime.combine(end_date, end_time).strftime('%Y-%m-%d %H:%M:%S')
+
+            query = f"SELECT log.id, log.face_id, faces.name, log.datetime, log.action, log.camera_id FROM log JOIN faces ON log.face_id = faces.id WHERE faces.name LIKE '{name}' AND log.datetime BETWEEN '{start_datetime}' AND '{end_datetime}' AND log.action LIKE '{action}' AND CAST(log.camera_id AS TEXT) LIKE '{camera_id}';"
         else:
-            query = f"SELECT * FROM log WHERE face_id IN (SELECT id FROM faces WHERE name LIKE '{name}') AND action LIKE '{action}' AND CAST(camera_id AS TEXT) LIKE '{camera_id}';"
+            query = f"SELECT log.id, log.face_id, faces.name, log.datetime, log.action, log.camera_id FROM log JOIN faces ON log.face_id = faces.id WHERE faces.name LIKE '{name}' AND log.action LIKE '{action}' AND CAST(log.camera_id AS TEXT) LIKE '{camera_id}';"
 
         cur = self.conn.cursor()
         cur.execute(query)
@@ -414,7 +467,7 @@ class ShowTableWindow:
         print(self.conn)
 
         # Tarih ve saat için girdi alanları
-        self.start_label = ttk.Label(master, text="Başlangıç (Tarih - Saat)")
+        self.start_label = ttk.Label(master, text="Yoklama Zamanı (Tarih - Saat)")
         self.start_label.pack()
 
         self.start_frame = ttk.Frame(master)
