@@ -6,10 +6,8 @@ import os
 import sys
 import pandas as pd
 from tkinter import filedialog
-from datetime import datetime
 import configparser
 from tkinter import messagebox
-from datetime import timedelta
 from tkcalendar import DateEntry
 import datetime
 
@@ -278,44 +276,60 @@ class AddFaceWindow:
         subprocess.Popen(['python', os.path.join(sys.path[0], 'encodeToDB.py')])
 
 
-
-
 class ShowTableWindow:
     def __init__(self, master):
         self.master = master
         self.master.title("Yoklama Tablosu")
-        #self.style = ttk.Style() bu iki satır başka pencerelerin de temasını değiştiriyor
-        #self.style.theme_use("clam")  # Görsel tema
 
         # PostgreSQL veritabanına bağlanma işlemi
-        conn = DBconn()
-        print(conn)
+        self.conn = DBconn()
 
-        # Tablo verilerini çeken sorgu
-        cur = conn.cursor()
-        cur.execute(f"SELECT id, name, status, last_reco FROM faces;")
+        print(self.conn)
 
-        # Tablo verilerini bir DataFrame'e aktarma işlemi
-        rows = cur.fetchall()
-        self.df = pd.DataFrame(rows, columns=["ID", "İsim", "Durum", "Son Tanıma Tarihi"])
-        self.df["Durum"] = self.df["Durum"].apply(lambda x: "İçeride" if x == "i" else "Dışarıda")
+        # Tarih ve saat için girdi alanları
+        self.start_label = ttk.Label(master, text="Başlangıç (Tarih - Saat)")
+        self.start_label.pack()
 
-        # Bağlantıyı kapatma işlemi
-        cur.close()
-        conn.close()
+        self.start_frame = ttk.Frame(master)
+        self.start_frame.pack()
+
+        self.start_date_entry = DateEntry(self.start_frame)
+        self.start_date_entry.pack(side="left")
+
+        self.start_time_frame = ttk.Frame(self.start_frame)
+        self.start_time_frame.pack(side="left", padx=4)
+
+        self.start_hour_spin = tk.Spinbox(self.start_time_frame, from_=0, to=23, width=2)
+        self.start_hour_spin.pack(side="left")
+        self.hour_label = ttk.Label(self.start_time_frame, text="h")
+        self.hour_label.pack(side="left")
+
+        self.start_minute_spin = tk.Spinbox(self.start_time_frame, from_=0, to=59, width=2)
+        self.start_minute_spin.pack(side="left")
+        self.minute_label = ttk.Label(self.start_time_frame, text="m")
+        self.minute_label.pack(side="left")
+
+        self.start_second_spin = tk.Spinbox(self.start_time_frame, from_=0, to=59, width=2)
+        self.start_second_spin.pack(side="left")
+        self.second_label = ttk.Label(self.start_time_frame, text="s")
+        self.second_label.pack(side="left")
+
+        # Verileri görüntüleme ve kaydetme butonları
+        self.show_button = ttk.Button(master, text="Verileri Görüntüle", command=self.show_data)
+        self.show_button.pack()
+
+        self.save_button = ttk.Button(master, text="Yoklamayı Excel Dosyası Olarak Dışa Aktar",
+                                      command=self.save_to_excel)
+        self.save_button.pack()
 
         # Treeview widget'ını oluşturma işlemi
         self.tree = ttk.Treeview(self.master, show='headings')
-        self.tree["columns"]=("ID", "İsim", "Durum", "Son Tanıma Tarihi")
+        self.tree["columns"] = ("ID", "İsim", "Durum", "Son Tanıma Tarihi", "Kamera ID")
 
         # Her bir sütun için başlık ve genişlik belirleme
         for column in self.tree["columns"]:
             self.tree.column(column, width=100)
             self.tree.heading(column, text=column)
-
-        # DataFrame'deki verileri Treeview widget'ına ekleme
-        for _, row in self.df.iterrows():
-            self.tree.insert("", "end", values=list(row))
 
         # Kaydırma çubuğunu oluşturma
         self.scrollbar = ttk.Scrollbar(self.master, orient='vertical', command=self.tree.yview)
@@ -324,18 +338,41 @@ class ShowTableWindow:
 
         self.tree.pack()
 
-        # Excel Oluştur butonu
-        self.save_button = ttk.Button(self.master, text="Yoklamayı Excel Dosyası Olarak Dışa Aktar", command=self.save_to_excel)
-        self.save_button.pack()
+    def show_data(self):
+        date = self.start_date_entry.get_date().strftime('%Y-%m-%d')
+        time = self.start_hour_spin.get() + ":" + self.start_minute_spin.get() + ":" + self.start_second_spin.get()
+        datetime_str = date + " " + time
+
+        cur = self.conn.cursor()
+        cur.execute("SELECT id, name FROM faces;")
+        all_ids_names = cur.fetchall()
+        rows = []
+
+        for id, name in all_ids_names:
+            cur.execute(
+                f"SELECT action, datetime, camera_id FROM log WHERE face_id = {id} AND datetime <= '{datetime_str}' ORDER BY datetime DESC LIMIT 1;")
+            last_record = cur.fetchone()
+            if last_record is None:
+                rows.append((id, name, "Veri Yok", "Veri Yok", "Veri Yok"))
+            else:
+                status = "İçeride" if last_record[0] == "i" else "Dışarıda"
+                rows.append((id, name, status, last_record[1], last_record[2]))
+
+        self.df = pd.DataFrame(rows, columns=["ID", "İsim", "Durum", "Son Tanıma Tarihi", "Kamera ID"])
+
+        for i in self.tree.get_children():
+            self.tree.delete(i)
+
+        for _, row in self.df.iterrows():
+            self.tree.insert("", "end", values=list(row))
+
+        cur.close()
 
     def save_to_excel(self):
-        # DataFrame'i Excel dosyasına kaydetme işlemi
         save_file_path = filedialog.askdirectory()
-        if save_file_path:
-            datetime_str = datetime.now().strftime("%Y-%m-%d %H-%M-%S") + " Yoklaması"
-            self.df.to_excel(save_file_path + f"/{datetime_str}.xlsx", sheet_name="Yoklama", index=False)
-
-
+        datetime_str = self.start_date_entry.get_date().strftime(
+            '%Y%m%d') + "_" + self.start_hour_spin.get() + self.start_minute_spin.get() + self.start_second_spin.get()
+        self.df.to_excel(save_file_path + f"/{datetime_str}.xlsx", sheet_name="Yoklama", index=False)
 
 
 class CameraSelect:
