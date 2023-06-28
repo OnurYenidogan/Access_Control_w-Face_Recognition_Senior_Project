@@ -17,6 +17,133 @@ import datetime
 pgConn = DBconn()"""
 
 
+class LogSearchWindow:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Log Sorgulama")
+
+        # PostgreSQL veritabanına bağlanma işlemi
+        self.conn = DBconn()
+
+        # SQL sorgusu ile faces tablosundan isimleri ve log tablosundan camera_id'leri çekme
+        cur = self.conn.cursor()
+        cur.execute("SELECT DISTINCT name FROM faces;")
+        self.names = [name[0] for name in cur.fetchall()]
+        cur.execute("SELECT DISTINCT camera_id FROM log;")
+        self.camera_ids = [str(id[0]) for id in cur.fetchall()]
+        cur.close()
+
+        # Faces isimlerinin bulunduğu dropdown menü
+        self.name_label = ttk.Label(master, text="Yüz İsmi:")
+        self.name_label.pack()
+        self.name_var = tk.StringVar()
+        self.name_dropdown = ttk.Combobox(master, textvariable=self.name_var, values=["Hepsi"] + self.names)
+        self.name_dropdown.current(0)
+        self.name_dropdown.pack()
+
+        # Tarih aralığı belirtme radio butonları
+        self.date_range_var = tk.StringVar()
+        self.date_range_var.set("no")
+        self.no_date_range_radio = ttk.Radiobutton(master, text="Tarih Aralığı Belirtme", variable=self.date_range_var, value="no", command=self.toggle_date_entries)
+        self.no_date_range_radio.pack()
+        self.yes_date_range_radio = ttk.Radiobutton(master, text="Tarih Aralığı Belirt", variable=self.date_range_var, value="yes", command=self.toggle_date_entries)
+        self.yes_date_range_radio.pack()
+
+        # Tarih girişi için başlangıç ve bitiş alanları
+        self.start_label = ttk.Label(master, text="Başlangıç (Tarih - Saat)")
+        self.start_label.pack()
+        self.start_date_entry = DateEntry(master)
+        self.start_date_entry.pack()
+
+        self.end_label = ttk.Label(master, text="Bitiş (Tarih - Saat)")
+        self.end_label.pack()
+        self.end_date_entry = DateEntry(master)
+        self.end_date_entry.pack()
+
+        self.toggle_date_entries()  # Başlangıçta tarih girişi alanlarını gizle
+
+        # Action için dropdown menü
+        self.action_label = ttk.Label(master, text="Action:")
+        self.action_label.pack()
+        self.action_var = tk.StringVar()
+        self.action_dropdown = ttk.Combobox(master, textvariable=self.action_var, values=["Hepsi", "i", "o"])
+        self.action_dropdown.current(0)
+        self.action_dropdown.pack()
+
+        # Camera ID için dropdown menü
+        self.camera_id_label = ttk.Label(master, text="Kamera ID:")
+        self.camera_id_label.pack()
+        self.camera_id_var = tk.StringVar()
+        self.camera_id_dropdown = ttk.Combobox(master, textvariable=self.camera_id_var, values=["Hepsi"] + self.camera_ids)
+        self.camera_id_dropdown.current(0)
+        self.camera_id_dropdown.pack()
+
+        # Sorgulama butonu
+        self.search_button = ttk.Button(master, text="Sorgula", command=self.search)
+        self.search_button.pack()
+
+
+
+        self.tree_frame = tk.Frame(master)
+        self.tree_frame.pack(fill='both', expand=True)
+
+        self.tree = ttk.Treeview(self.tree_frame)
+        self.tree["columns"] = ("log_id", "face_id", "datetime", "action", "camera_id")
+
+        self.tree.column("#0", width=0, minwidth=0, stretch=False)
+        self.tree.column("log_id", anchor="w", width=80)
+        self.tree.column("face_id", anchor="w", width=80)
+        self.tree.column("datetime", anchor="w", width=120)
+        self.tree.column("action", anchor="w", width=80)
+        self.tree.column("camera_id", anchor="w", width=80)
+
+        self.tree.heading("#0", text="", anchor="w")
+        self.tree.heading("log_id", text="Log ID", anchor="w")
+        self.tree.heading("face_id", text="Face ID", anchor="w")
+        self.tree.heading("datetime", text="Date/Time", anchor="w")
+        self.tree.heading("action", text="Action", anchor="w")
+        self.tree.heading("camera_id", text="Camera ID", anchor="w")
+
+        self.scrollbar = ttk.Scrollbar(self.tree_frame, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.pack(side='right', fill='y')
+        self.tree.pack(side='left', fill='both', expand=True)
+
+    def toggle_date_entries(self):
+        if self.date_range_var.get() == "yes":
+            self.start_date_entry.config(state="normal")
+            self.end_date_entry.config(state="normal")
+        else:
+            self.start_date_entry.config(state="disabled")
+            self.end_date_entry.config(state="disabled")
+
+    def search(self):
+        name = self.name_var.get() if self.name_var.get() != "Hepsi" else "%"
+        date_range = self.date_range_var.get()
+        action = self.action_var.get() if self.action_var.get() != "Hepsi" else "%"
+        camera_id = self.camera_id_var.get() if self.camera_id_var.get() != "Hepsi" else "%"
+
+        if date_range == "yes":
+            start_date = self.start_date_entry.get_date().strftime('%Y-%m-%d')
+            end_date = self.end_date_entry.get_date().strftime('%Y-%m-%d')
+            query = f"SELECT * FROM log WHERE face_id IN (SELECT id FROM faces WHERE name LIKE '{name}') AND datetime BETWEEN '{start_date}' AND '{end_date}' AND action LIKE '{action}' AND CAST(camera_id AS TEXT) LIKE '{camera_id}';"
+        else:
+            query = f"SELECT * FROM log WHERE face_id IN (SELECT id FROM faces WHERE name LIKE '{name}') AND action LIKE '{action}' AND CAST(camera_id AS TEXT) LIKE '{camera_id}';"
+
+        cur = self.conn.cursor()
+        cur.execute(query)
+        rows = cur.fetchall()
+        cur.close()
+
+        for i in self.tree.get_children():
+            self.tree.delete(i)
+
+        if rows:
+            for row in sorted(rows, key=lambda x: x[0]):  # ID'ye göre küçükten büyüğe sıralama
+                self.tree.insert("", "end", values=row)
+        else:
+            messagebox.showinfo("Sonuç", "Sorgu sonucunda hiç veri bulunamadı.")
+
 
 class PresenceCalculatorWindow:
     def __init__(self, master):
@@ -576,6 +703,10 @@ def main():
     start_button.pack(padx=10, pady=10)
 
     add_button1 = tk.Button(root, text="İçeride Geçirilen Zaman", command=lambda: PresenceCalculatorWindow(tk.Toplevel()),
+                            width=20, height=2, bg="green", fg="white", font=("Helvetica", 16))
+    add_button1.pack(padx=10, pady=10)
+
+    add_button1 = tk.Button(root, text="LogSearchWindow", command=lambda: LogSearchWindow(tk.Toplevel()),
                             width=20, height=2, bg="green", fg="white", font=("Helvetica", 16))
     add_button1.pack(padx=10, pady=10)
 
