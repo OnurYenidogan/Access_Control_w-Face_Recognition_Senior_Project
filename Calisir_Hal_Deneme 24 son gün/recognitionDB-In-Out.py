@@ -15,6 +15,8 @@ else:
     Kamera_Tipi = 'o'
 global camera_id
 camera_id = int(sys.argv[1])
+
+
 def add_to_database(face_id):
     cur = conn.cursor()
 
@@ -23,16 +25,16 @@ def add_to_database(face_id):
     current_time = now.strftime("%Y-%m-%d %H:%M:%S")
 
     # Insert into log table
-    cur.execute("INSERT INTO log (camera_id, face_id, datetime, action) VALUES (%s, %s, %s, %s)",(camera_id, face_id, current_time, Kamera_Tipi))
+    cur.execute("INSERT INTO log (camera_id, face_id, datetime, action) VALUES (%s, %s, %s, %s)",
+                (camera_id, face_id, current_time, Kamera_Tipi))
 
     # Update faces table
-    cur.execute("UPDATE faces SET status = %s, last_reco = %s WHERE id = %s", (Kamera_Tipi, current_time, face_id))
+    cur.execute("UPDATE faces SET status = %s, last_reco = %s WHERE id = %s",
+                (Kamera_Tipi, current_time, face_id))
 
     # Commit changes
     conn.commit()
     print(face_id)
-
-# Fonksiyonu kullanarak veritabanına kayıt ekleme
 
 
 # Helper
@@ -45,6 +47,7 @@ def face_confidence(face_distance, face_match_threshold=0.6):
     else:
         value = (linear_val + ((1.0 - linear_val) * math.pow((linear_val - 0.5) * 2, 0.2))) * 100
         return str(round(value, 2)) + '%'
+
 
 class FaceRecognition:
     face_locations = []
@@ -79,7 +82,7 @@ class FaceRecognition:
         return known_face_ids, known_face_encodings, known_face_names
 
     # Veritabanından yüz verilerini çek
-    #known_face_encodings, known_face_names = get_known_faces_from_db()
+    # known_face_encodings, known_face_names = get_known_faces_from_db()
 
     # İşlem bittiğinde veritabanı bağlantısını kapattık
     def run_recognition(self):
@@ -91,6 +94,7 @@ class FaceRecognition:
             sys.exit('Video source not found...')
 
         root = Tk()
+        root.title("Camera " + str(camera_id) + " " + ("Giriş" if Kamera_Tipi == 'i' else "Çıkış"))
         label = Label(root)
         label.pack()
 
@@ -155,7 +159,8 @@ class FaceRecognition:
 
                 # Draw a label with a name below the face
                 draw.rectangle(((left - padding, bottom + padding),
-                                (left + text_width + padding, bottom + text_height + 2 * padding)), fill=(255, 0, 0))
+                                (left + text_width + padding, bottom + text_height + 2 * padding)),
+                               fill=(255, 0, 0))
                 draw.text((left, bottom + padding), name, font=font, fill=(255, 255, 255, 255))
 
                 # Convert the image back to BGR for displaying with opencv
@@ -179,7 +184,6 @@ class FaceRecognition:
 
         video_capture.release()
         cv2.destroyAllWindows()
-
 
 
 if __name__ == '__main__':
