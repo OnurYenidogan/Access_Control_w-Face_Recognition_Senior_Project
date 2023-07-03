@@ -26,7 +26,7 @@ class App:
         self.canvas.pack()
 
         # Button that lets the user take a snapshot
-        self.btn_snapshot = Button(window, text="Save", width=50, command=self.open_second_window, state='normal')
+        self.btn_snapshot = Button(window, text="Fotoğraf Çek", width=50, command=self.open_second_window, state='normal')
         self.btn_snapshot.pack(anchor=CENTER, expand=True)
 
         # After it is called once, the update method will be automatically called every delay milliseconds
@@ -50,7 +50,7 @@ class App:
 
         if len(face_encodings) > 0:  # Yüz tanınabildi
             self.window2 = Toplevel()
-            self.window2.title("Confirm Save")
+            self.window2.title("Fotoğrafı Onayla Ve Kaydet")
 
             self.photo2 = ImageTk.PhotoImage(image=Image.fromarray(self.saved_frame))
             self.canvas2 = Canvas(self.window2, width=self.saved_frame.shape[1], height=self.saved_frame.shape[0])
@@ -61,9 +61,9 @@ class App:
             self.entry2 = Entry(self.window2, textvariable=self.entry2_var)
             self.entry2.pack()
 
-            self.btn_confirm = Button(self.window2, text="Confirm", command=self.save_face, state='disabled')
+            self.btn_confirm = Button(self.window2, text="Onayla Ve Kaydet", command=self.save_face, state='disabled')
             self.btn_confirm.pack()
-            self.btn_cancel = Button(self.window2, text="Cancel", command=self.window2.destroy)
+            self.btn_cancel = Button(self.window2, text="İptal Et", command=self.window2.destroy)
             self.btn_cancel.pack()
 
             self.entry2_var.trace_add('write', self.activate_confirm_button)
@@ -129,4 +129,4 @@ class App:
 
 
 if __name__ == '__main__':
-    App(Tk(), "Face Save App")
+    App(Tk(), "Kamera İle Kişi Ekle")

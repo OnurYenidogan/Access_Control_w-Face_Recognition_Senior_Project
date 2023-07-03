@@ -10,7 +10,8 @@ import configparser
 from tkinter import messagebox
 from tkcalendar import DateEntry
 import datetime
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
+
 from PIL import Image, ImageTk
 
 
@@ -302,18 +303,19 @@ class PresenceCalculatorWindow:
         selected_id = matching_ids[0]
 
         start_date = self.start_date_entry.get_date()
-        start_hour = int(self.start_hour_spin.get())
-        start_minute = int(self.start_minute_spin.get())
-        start_second = int(self.start_second_spin.get())
-        start_time = datetime.time(start_hour, start_minute, start_second)
-        start_datetime = datetime.datetime.combine(start_date, start_time)
+        start_time = time(int(self.start_hour_spin.get()), int(self.start_minute_spin.get()),
+                          int(self.start_second_spin.get()))
+        start_datetime = datetime.combine(start_date, start_time).strftime('%Y-%m-%d %H:%M:%S')
 
         end_date = self.end_date_entry.get_date()
-        end_hour = int(self.end_hour_spin.get())
-        end_minute = int(self.end_minute_spin.get())
-        end_second = int(self.end_second_spin.get())
-        end_time = datetime.time(end_hour, end_minute, end_second)
-        end_datetime = datetime.datetime.combine(end_date, end_time)
+        end_time = time(int(self.end_hour_spin.get()), int(self.end_minute_spin.get()),
+                        int(self.end_second_spin.get()))
+        end_datetime = datetime.combine(end_date, end_time).strftime('%Y-%m-%d %H:%M:%S')
+
+        end_date = self.end_date_entry.get_date()
+        end_time = time(int(self.end_hour_spin.get()), int(self.end_minute_spin.get()),
+                        int(self.end_second_spin.get()))
+        end_datetime = datetime.combine(end_date, end_time).strftime('%Y-%m-%d %H:%M:%S')
 
         self.cur.execute(f"""
             WITH ordered_logs AS (
@@ -366,14 +368,13 @@ class PresenceCalculatorWindow:
         for i in self.tree.get_children():
             self.tree.delete(i)
 
-        # Add data to the table
         total_presence_seconds = 0  # Toplam süreyi hesaplamak için bir değişken
         for entry in presence_entries:
             self.tree.insert('', 'end', values=entry)
             total_presence_seconds += entry[4].total_seconds()  # Toplam süreyi hesapla
 
         # Toplam süreyi timedelta ile gün, saat, dakika, saniye formatına dönüştürme
-        total_presence = datetime.timedelta(seconds=total_presence_seconds)
+        total_presence = timedelta(seconds=total_presence_seconds)
 
         # Toplam süreyi etikete yazma
         self.total_presence_label['text'] = f'Toplam süre: {total_presence}'
@@ -382,20 +383,31 @@ class PresenceCalculatorWindow:
 class CameraSelectKisiEkle:
     def __init__(self, master):
         self.master = master
-        self.master.title("Kamera Seçimi")
+        self.master.title("Kamerayla Kişi Ekle")
         self.master.configure(background='#F5F5F5')
 
         self.BagliCams = get_camera_list()
+
         # Kamera listesi için dropdown
+        camera_label = ttk.Label(self.master, text="Kamera Seçiniz:")
+        camera_label.grid(row=0, column=0, padx=10, pady=10, sticky="e")
+
         self.camera_list = ttk.Combobox(self.master, values=[f"Kamera {cam}" for cam in self.BagliCams],
                                         state='readonly', width=20)
         self.camera_list.current(0)
-        self.camera_list.grid(row=1, column=0, columnspan=2, padx=10, pady=10)
+        self.camera_list.grid(row=0, column=1, padx=10, pady=10, sticky="w")
 
         # Seçimi onaylamak için buton
         self.confirm_button = ttk.Button(self.master, text="Kamera Başlat", command=self.cameraStart)
-        self.confirm_button.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="s")
+        self.confirm_button.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="s")
         self.confirm_button.configure(style='AccentButton.TButton')
+
+        # Butonu ortala
+        self.master.grid_rowconfigure(1, weight=1)
+        self.master.grid_columnconfigure(0, weight=1)
+        self.master.grid_columnconfigure(1, weight=1)
+        self.confirm_button.grid(sticky="nsew")
+
         self.master.bind("<Return>", lambda event: self.cameraStart())
 
     def cameraStart(self):
@@ -475,23 +487,26 @@ class ShowTableWindow:
         self.start_frame = ttk.Frame(master)
         self.start_frame.pack()
 
-        self.start_date_entry = DateEntry(self.start_frame)
+        now = datetime.now()
+
+        self.start_date_entry = DateEntry(self.start_frame, date_pattern='dd/mm/y', year=now.year, month=now.month,
+                                          day=now.day)
         self.start_date_entry.pack(side="left")
 
         self.start_time_frame = ttk.Frame(self.start_frame)
         self.start_time_frame.pack(side="left", padx=4)
 
-        self.start_hour_spin = tk.Spinbox(self.start_time_frame, from_=0, to=23, width=2)
+        self.start_hour_spin = tk.Spinbox(self.start_time_frame, from_=0, to=23, width=2, value=now.hour)
         self.start_hour_spin.pack(side="left")
         self.hour_label = ttk.Label(self.start_time_frame, text="h")
         self.hour_label.pack(side="left")
 
-        self.start_minute_spin = tk.Spinbox(self.start_time_frame, from_=0, to=59, width=2)
+        self.start_minute_spin = tk.Spinbox(self.start_time_frame, from_=0, to=59, width=2, value=now.minute)
         self.start_minute_spin.pack(side="left")
         self.minute_label = ttk.Label(self.start_time_frame, text="m")
         self.minute_label.pack(side="left")
 
-        self.start_second_spin = tk.Spinbox(self.start_time_frame, from_=0, to=59, width=2)
+        self.start_second_spin = tk.Spinbox(self.start_time_frame, from_=0, to=59, width=2, value=now.second)
         self.start_second_spin.pack(side="left")
         self.second_label = ttk.Label(self.start_time_frame, text="s")
         self.second_label.pack(side="left")
@@ -501,7 +516,7 @@ class ShowTableWindow:
         self.show_button.pack()
 
         self.save_button = ttk.Button(master, text="Yoklamayı Excel Dosyası Olarak Dışa Aktar",
-                                      command=self.save_to_excel)
+                                      command=self.save_to_excel, state=tk.DISABLED)
         self.save_button.pack()
 
         # Treeview widget'ını oluşturma işlemi
@@ -509,8 +524,10 @@ class ShowTableWindow:
         self.tree["columns"] = ("ID", "İsim", "Durum", "Son Tanıma Tarihi", "Kamera ID")
 
         # Her bir sütun için başlık ve genişlik belirleme
-        for column in self.tree["columns"]:
-            self.tree.column(column, width=100)
+        column_widths = [50, 150, 80, 200, 80]  # Sütun genişliklerini burada ayarlayabilirsiniz
+
+        for i, column in enumerate(self.tree["columns"]):
+            self.tree.column(column, width=column_widths[i])
             self.tree.heading(column, text=column)
 
         # Kaydırma çubuğunu oluşturma
@@ -550,10 +567,13 @@ class ShowTableWindow:
 
         cur.close()
 
+        # Verileri görüntüleme butonuna basıldığında, kaydetme butonunu aktive et
+        self.save_button.configure(state=tk.NORMAL)
+
     def save_to_excel(self):
         save_file_path = filedialog.askdirectory()
         datetime_str = self.start_date_entry.get_date().strftime(
-            '%Y%m%d') + "_" + self.start_hour_spin.get() + self.start_minute_spin.get() + self.start_second_spin.get()
+            '%Y-%m-%d') + "_" + self.start_hour_spin.get() + "." + self.start_minute_spin.get() + "." + self.start_second_spin.get()
         self.df.to_excel(save_file_path + f"/{datetime_str}.xlsx", sheet_name="Yoklama", index=False)
 
 
