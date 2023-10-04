@@ -14,6 +14,7 @@ from datetime import datetime, time, timedelta
 
 from PIL import Image, ImageTk
 
+lang = "Tr"
 
 """Gereksiz olanlar projeden kaldırılmadığı için burada yazıyor"""
 
@@ -770,7 +771,7 @@ def main():
     root.title("Çok Kamera ile Yüz Tanıma Tabanlı Giriş/Çıkış Sistemi")
 
     # Resim dosyalarını yükle
-    image = Image.open("a.jpg")
+    image = Image.open(os.path.join("ButtonImages", f"a{lang.capitalize()}.jpg"))
     image2 = Image.open("b.jpg")
     image3 = Image.open("c.jpg")
     image4 = Image.open("d.jpg")
