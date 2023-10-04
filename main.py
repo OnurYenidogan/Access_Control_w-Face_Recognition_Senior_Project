@@ -14,7 +14,19 @@ from datetime import datetime, time, timedelta
 
 from PIL import Image, ImageTk
 
+global lang
 lang = "Eng"
+
+
+def set_language(lang_code):
+    global lang
+    lang = lang_code
+    # Here, you can perform necessary actions when the language changes.
+    # For example, you can update your page or change translation texts.
+
+    # Destroy the current window and create a new one to refresh the content
+    root.destroy()
+    main()  # A function to create the main window again
 
 """Gereksiz olanlar projeden kaldırılmadığı için burada yazıyor"""
 
@@ -777,6 +789,8 @@ def main():
     BtnImg4 = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", f"d{lang.capitalize()}.jpg")))
     BtnImg5 = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", f"e{lang.capitalize()}.jpg")))
     BtnImg6 = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", f"f{lang.capitalize()}.jpg")))
+    BtnTr = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", "TurkishFlag.png")))
+    BtnEng = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", "EnglishFlag.png")))
 
     # Resmi tkinter ile kullanılabilir hale getir ve boyutunu ayarla
     #image = image.resize((300, 100), Image.Resampling.LANCZOS)
@@ -805,6 +819,13 @@ def main():
 
     add_button2 = tk.Button(root, image=BtnImg6, command=lambda: LogSearchWindow(tk.Toplevel()))
     add_button2.grid(row=3, column=1, padx=10, pady=10)
+
+    # Create and place language selection buttons
+    tr_button = tk.Button(root, image=BtnTr, command=lambda: set_language("tr"))
+    tr_button.grid(row=4, column=0, padx=10, pady=10, sticky="se")
+
+    eng_button = tk.Button(root, image=BtnEng, command=lambda: set_language("eng"))
+    eng_button.grid(row=4, column=1, padx=10, pady=10, sticky="sw")
 
     root.mainloop()
 
