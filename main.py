@@ -780,7 +780,8 @@ def main():
 
     global root
     root = tk.Tk()
-    root.title("Çok Kamera ile Yüz Tanıma Tabanlı Giriş/Çıkış Sistemi")
+    root.title("Multi-Camera Facial Recognition-Based Access Control System")
+    # root.title("Çok Kamera ile Yüz Tanıma Tabanlı Giriş/Çıkış Sistemi")
 
     # Resim dosyalarını yükle
     BtnImg = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", f"a{lang.capitalize()}.jpg")))
@@ -797,8 +798,9 @@ def main():
 
 
     # Başlık etiketi oluştur ve yerleştir
-    title_label = tk.Label(root, text="Çok Kamera ile Yüz Tanıma Tabanlı Giriş/Çıkış Sistemi",
-                           font=("Helvetica", 16, "bold"))
+    title_label = tk.Label(root, text="Multi-Camera Facial Recognition-Based Access Control System",font=("Helvetica", 16, "bold"))
+    #title_label = tk.Label(root, text="Çok Kamera ile Yüz Tanıma Tabanlı Giriş/Çıkış Sistemi",font=("Helvetica", 16, "bold"))
+
     title_label.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
 
     # Butonları oluştur ve hizala
