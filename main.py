@@ -14,7 +14,7 @@ from datetime import datetime, time, timedelta
 
 from PIL import Image, ImageTk
 
-lang = "Tr"
+lang = "Eng"
 
 """Gereksiz olanlar projeden kaldırılmadığı için burada yazıyor"""
 
@@ -771,21 +771,16 @@ def main():
     root.title("Çok Kamera ile Yüz Tanıma Tabanlı Giriş/Çıkış Sistemi")
 
     # Resim dosyalarını yükle
-    image = Image.open(os.path.join("ButtonImages", f"a{lang.capitalize()}.jpg"))
-    image2 = Image.open("b.jpg")
-    image3 = Image.open("c.jpg")
-    image4 = Image.open("d.jpg")
-    image5 = Image.open("e.jpg")
-    image6 = Image.open("f.jpg")
+    BtnImg = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", f"a{lang.capitalize()}.jpg")))
+    BtnImg2 = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", f"b{lang.capitalize()}.jpg")))
+    BtnImg3 = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", f"c{lang.capitalize()}.jpg")))
+    BtnImg4 = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", f"d{lang.capitalize()}.jpg")))
+    BtnImg5 = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", f"e{lang.capitalize()}.jpg")))
+    BtnImg6 = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", f"f{lang.capitalize()}.jpg")))
 
     # Resmi tkinter ile kullanılabilir hale getir ve boyutunu ayarla
-    image = image.resize((300, 100), Image.Resampling.LANCZOS)
-    photo = ImageTk.PhotoImage(image)
-    photo2 = ImageTk.PhotoImage(image2)
-    photo3 = ImageTk.PhotoImage(image3)
-    photo4 = ImageTk.PhotoImage(image4)
-    photo5 = ImageTk.PhotoImage(image5)
-    photo6 = ImageTk.PhotoImage(image6)
+    #image = image.resize((300, 100), Image.Resampling.LANCZOS)
+
 
     # Başlık etiketi oluştur ve yerleştir
     title_label = tk.Label(root, text="Çok Kamera ile Yüz Tanıma Tabanlı Giriş/Çıkış Sistemi",
@@ -793,22 +788,22 @@ def main():
     title_label.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
 
     # Butonları oluştur ve hizala
-    start_button = tk.Button(root, image=photo, command=open_CameraSelect)
+    start_button = tk.Button(root, image=BtnImg, command=open_CameraSelect)
     start_button.grid(row=1, column=0, padx=10, pady=10)
 
-    add_button1 = tk.Button(root, image=photo2, command=lambda: ShowTableWindow(tk.Toplevel()))
+    add_button1 = tk.Button(root, image=BtnImg2, command=lambda: ShowTableWindow(tk.Toplevel()))
     add_button1.grid(row=1, column=1, padx=10, pady=10)
 
-    add_button2 = tk.Button(root, image=photo3, command=batch_add_faces)
+    add_button2 = tk.Button(root, image=BtnImg3, command=batch_add_faces)
     add_button2.grid(row=2, column=0, padx=10, pady=10)
 
-    start_button = tk.Button(root, image=photo4, command=open_CameraSelectKisiEkle)
+    start_button = tk.Button(root, image=BtnImg4, command=open_CameraSelectKisiEkle)
     start_button.grid(row=2, column=1, padx=10, pady=10)
 
-    add_button1 = tk.Button(root, image=photo5, command=lambda: PresenceCalculatorWindow(tk.Toplevel()))
+    add_button1 = tk.Button(root, image=BtnImg5, command=lambda: PresenceCalculatorWindow(tk.Toplevel()))
     add_button1.grid(row=3, column=0, padx=10, pady=10)
 
-    add_button2 = tk.Button(root, image=photo6, command=lambda: LogSearchWindow(tk.Toplevel()))
+    add_button2 = tk.Button(root, image=BtnImg6, command=lambda: LogSearchWindow(tk.Toplevel()))
     add_button2.grid(row=3, column=1, padx=10, pady=10)
 
     root.mainloop()
