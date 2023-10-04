@@ -1,4 +1,4 @@
-### English version is on the way!!!
+### Full English version is on the way!!!
 
 ### [Project's Youtube Link With English Subtitles](https://youtu.be/HZ0wk8kVsfc)
 
