@@ -662,6 +662,20 @@ def open_CameraSelect():
     camSelect = CameraSelect(tk.Toplevel())
 
 
+def center_window(window):
+    window.update_idletasks()
+    window_width = window.winfo_width()
+    window_height = window.winfo_height()
+
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+
+    x = (screen_width - window_width) // 2
+    y = (screen_height - window_height) // 2
+
+    window.geometry(f"+{x}+{y}")
+
+
 def main():
     # Stil ayarları
     BG_COLOR = "#F0F0F0"
@@ -678,9 +692,9 @@ def main():
         ini_tk = tk.Tk()
         ini_tk.title("VT bilgilerini girin")
         ini_tk.withdraw(
-                        "Lütfen PostgreSQL bağlantısı için gerekli bilgileri giriniz. "
-                        "Bu işlem config.ini dosyası varsa üstüne yeni bilgileri kaydedecektir, "
-                        "yoksa yeni bir dosya oluşturacaktır.")
+            "Lütfen PostgreSQL bağlantısı için gerekli bilgileri giriniz. "
+            "Bu işlem config.ini dosyası varsa üstüne yeni bilgileri kaydedecektir, "
+            "yoksa yeni bir dosya oluşturacaktır.")
         dialog = tk.Toplevel(ini_tk)
 
         def on_dialog_close():
@@ -782,7 +796,7 @@ def main():
 
     global root
     root = tk.Tk()
-    root.title(MultiLangData["root.title"][lang])
+    root.title(MultiLangData["MainWindow"]["root.title"][lang])
 
     # Resim dosyalarını yükle
     BtnImg = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", f"a{lang.capitalize()}.jpg")))
@@ -794,13 +808,8 @@ def main():
     BtnTr = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", "TurkishFlag.png")))
     BtnEng = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", "EnglishFlag.png")))
 
-    # Resmi tkinter ile kullanılabilir hale getir ve boyutunu ayarla
-    #image = image.resize((300, 100), Image.Resampling.LANCZOS)
-
     # Başlık etiketi oluştur ve yerleştir
-    title_label = tk.Label(root, text=MultiLangData["title_label"][lang],font=("Helvetica", 16, "bold"))
-
-
+    title_label = tk.Label(root, text=MultiLangData["MainWindow"]["title_label"][lang], font=("Helvetica", 16, "bold"))
     title_label.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
 
     # Butonları oluştur ve hizala
@@ -829,8 +838,12 @@ def main():
     eng_button = tk.Button(root, image=BtnEng, command=lambda: set_language("Eng"))
     eng_button.grid(row=4, column=1, padx=10, pady=10, sticky="sw")
 
+    # Pencereyi ortala
+    center_window(root)
+
     root.mainloop()
 
 
 if __name__ == "__main__":
     main()
+

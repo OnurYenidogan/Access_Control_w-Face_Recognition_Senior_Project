@@ -1,10 +1,18 @@
 {
-    "root.title": {
-        "Eng": "Multi-Camera Facial Recognition-Based Access Control System",
-        "Tr": "Çok Kamera ile Yüz Tanıma Tabanlı Giriş/Çıkış Sistemi"
+    "MainWindow": {
+        "root.title": {
+            "Eng": "Multi-Camera Facial Recognition-Based Access Control System",
+            "Tr": "Çok Kamera ile Yüz Tanıma Tabanlı Giriş/Çıkış Sistemi"
+        },
+        "title_label": {
+            "Eng": "Multi-Camera Facial Recognition-Based Access Control System",
+            "Tr": "Çok Kamera ile Yüz Tanıma Tabanlı Giriş/Çıkış Sistemi"
+        }
     },
-    "title_label": {
-        "Eng": "Multi-Camera Facial Recognition-Based Access Control System",
-        "Tr": "Çok Kamera ile Yüz Tanıma Tabanlı Giriş/Çıkış Sistemi"
+    "kamera_modulu": {
+        "cam_module": {
+            "Eng": "Cam Module",
+            "Tr": "Kamera Modülü"
+        }
     }
 }
