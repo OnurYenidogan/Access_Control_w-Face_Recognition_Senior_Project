@@ -11,12 +11,14 @@ from tkinter import messagebox
 from tkcalendar import DateEntry
 import datetime
 from datetime import datetime, time, timedelta
-
 from PIL import Image, ImageTk
+import json
 
 global lang
 lang = "Eng"
 
+with open("multilanguage.json", "r", encoding="utf-8") as file:
+    MultiLangData = json.load(file)
 
 def set_language(lang_code):
     global lang
@@ -780,8 +782,7 @@ def main():
 
     global root
     root = tk.Tk()
-    root.title("Multi-Camera Facial Recognition-Based Access Control System")
-    # root.title("Çok Kamera ile Yüz Tanıma Tabanlı Giriş/Çıkış Sistemi")
+    root.title(MultiLangData["root.title"][lang])
 
     # Resim dosyalarını yükle
     BtnImg = ImageTk.PhotoImage(Image.open(os.path.join("ButtonImages", f"a{lang.capitalize()}.jpg")))
@@ -796,10 +797,9 @@ def main():
     # Resmi tkinter ile kullanılabilir hale getir ve boyutunu ayarla
     #image = image.resize((300, 100), Image.Resampling.LANCZOS)
 
-
     # Başlık etiketi oluştur ve yerleştir
-    title_label = tk.Label(root, text="Multi-Camera Facial Recognition-Based Access Control System",font=("Helvetica", 16, "bold"))
-    #title_label = tk.Label(root, text="Çok Kamera ile Yüz Tanıma Tabanlı Giriş/Çıkış Sistemi",font=("Helvetica", 16, "bold"))
+    title_label = tk.Label(root, text=MultiLangData["title_label"][lang],font=("Helvetica", 16, "bold"))
+
 
     title_label.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
 
@@ -823,10 +823,10 @@ def main():
     add_button2.grid(row=3, column=1, padx=10, pady=10)
 
     # Create and place language selection buttons
-    tr_button = tk.Button(root, image=BtnTr, command=lambda: set_language("tr"))
+    tr_button = tk.Button(root, image=BtnTr, command=lambda: set_language("Tr"))
     tr_button.grid(row=4, column=0, padx=10, pady=10, sticky="se")
 
-    eng_button = tk.Button(root, image=BtnEng, command=lambda: set_language("eng"))
+    eng_button = tk.Button(root, image=BtnEng, command=lambda: set_language("Eng"))
     eng_button.grid(row=4, column=1, padx=10, pady=10, sticky="sw")
 
     root.mainloop()
