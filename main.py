@@ -39,7 +39,7 @@ pgConn = DBconn()"""
 class LogSearchWindow:
     def __init__(self, master):
         self.master = master
-        self.master.title("Log Sorgulama")
+        self.master.title(MultiLangData["LogSearchWindow"]["mastertitle"][lang])
 
         # PostgreSQL veritabanına bağlanma işlemi
         self.conn = DBconn()
@@ -53,23 +53,23 @@ class LogSearchWindow:
         cur.close()
 
         # Faces isimlerinin bulunduğu dropdown menü
-        self.name_label = ttk.Label(master, text="Yüz İsmi:")
+        self.name_label = ttk.Label(master, text=MultiLangData["LogSearchWindow"]["name_label"][lang])
         self.name_label.pack()
         self.name_var = tk.StringVar()
-        self.name_dropdown = ttk.Combobox(master, textvariable=self.name_var, values=["Hepsi"] + self.names)
+        self.name_dropdown = ttk.Combobox(master, textvariable=self.name_var, values=[MultiLangData["all"][lang]] + self.names)
         self.name_dropdown.current(0)
         self.name_dropdown.pack()
 
         # Tarih aralığı belirtme radio butonları
         self.date_range_var = tk.StringVar()
         self.date_range_var.set("no")
-        self.no_date_range_radio = ttk.Radiobutton(master, text="Tarih Aralığı Belirtme", variable=self.date_range_var, value="no", command=self.toggle_date_entries)
+        self.no_date_range_radio = ttk.Radiobutton(master, text=MultiLangData["LogSearchWindow"]["no_date_range_radio"][lang], variable=self.date_range_var, value="no", command=self.toggle_date_entries)
         self.no_date_range_radio.pack()
-        self.yes_date_range_radio = ttk.Radiobutton(master, text="Tarih Aralığı Belirt", variable=self.date_range_var, value="yes", command=self.toggle_date_entries)
+        self.yes_date_range_radio = ttk.Radiobutton(master, text=MultiLangData["LogSearchWindow"]["yes_date_range_radio"][lang], variable=self.date_range_var, value="yes", command=self.toggle_date_entries)
         self.yes_date_range_radio.pack()
 
         # Tarih ve saat girişi için başlangıç ve bitiş alanları
-        self.start_label = ttk.Label(master, text="Başlangıç (Tarih - Saat)")
+        self.start_label = ttk.Label(master, text=MultiLangData["LogSearchWindow"]["start_label"][lang])
         self.start_label.pack()
 
         self.start_frame = ttk.Frame(master)
@@ -88,7 +88,7 @@ class LogSearchWindow:
         self.start_second_spin = tk.Spinbox(self.start_time_frame, from_=0, to=59, width=2, format="%02.0f", state="disabled")
         self.start_second_spin.pack(side="left")
 
-        self.end_label = ttk.Label(master, text="Bitiş (Tarih - Saat)")
+        self.end_label = ttk.Label(master, text=MultiLangData["LogSearchWindow"]["end_label"][lang])
         self.end_label.pack()
 
         self.end_frame = ttk.Frame(master)
@@ -108,23 +108,23 @@ class LogSearchWindow:
         self.end_second_spin.pack(side="left")
 
         # Action için dropdown menü
-        self.action_label = ttk.Label(master, text="Action:")
+        self.action_label = ttk.Label(master, text=MultiLangData["Action"][lang] + ":")
         self.action_label.pack()
         self.action_var = tk.StringVar()
-        self.action_dropdown = ttk.Combobox(master, textvariable=self.action_var, values=["Hepsi", "i", "o"])
+        self.action_dropdown = ttk.Combobox(master, textvariable=self.action_var, values=[MultiLangData["all"][lang], "i", "o"])
         self.action_dropdown.current(0)
         self.action_dropdown.pack()
 
         # Camera ID için dropdown menü
-        self.camera_id_label = ttk.Label(master, text="Kamera ID:")
+        self.camera_id_label = ttk.Label(master, text=MultiLangData["LogSearchWindow"]["camera_id_label"][lang])
         self.camera_id_label.pack()
         self.camera_id_var = tk.StringVar()
-        self.camera_id_dropdown = ttk.Combobox(master, textvariable=self.camera_id_var, values=["Hepsi"] + self.camera_ids)
+        self.camera_id_dropdown = ttk.Combobox(master, textvariable=self.camera_id_var, values=[MultiLangData["all"][lang]] + self.camera_ids)
         self.camera_id_dropdown.current(0)
         self.camera_id_dropdown.pack()
 
         # Sorgulama butonu
-        self.search_button = ttk.Button(master, text="Sorgula", command=self.search)
+        self.search_button = ttk.Button(master, text=MultiLangData["LogSearchWindow"]["search_button"][lang], command=self.search)
         self.search_button.pack()
 
         # Results area
@@ -181,10 +181,10 @@ class LogSearchWindow:
             self.end_second_spin.config(state="disabled")
 
     def search(self):
-        name = self.name_var.get() if self.name_var.get() != "Hepsi" else "%"
+        name = self.name_var.get() if self.name_var.get() != MultiLangData["all"][lang] else "%"
         date_range = self.date_range_var.get()
-        action = self.action_var.get() if self.action_var.get() != "Hepsi" else "%"
-        camera_id = self.camera_id_var.get() if self.camera_id_var.get() != "Hepsi" else "%"
+        action = self.action_var.get() if self.action_var.get() != MultiLangData["all"][lang] else "%"
+        camera_id = self.camera_id_var.get() if self.camera_id_var.get() != MultiLangData["all"][lang] else "%"
 
         if date_range == "yes":
             start_date = self.start_date_entry.get_date()
@@ -213,7 +213,7 @@ class LogSearchWindow:
             for row in sorted(rows, key=lambda x: x[0]):  # ID'ye göre küçükten büyüğe sıralama
                 self.tree.insert("", "end", values=row)
         else:
-            messagebox.showinfo("Sonuç", "Sorgu sonucunda hiç veri bulunamadı.")
+            messagebox.showinfo(MultiLangData["LogSearchWindow"]["showinfoTitle"][lang], MultiLangData["LogSearchWindow"]["showinfo"][lang])
 
 
 class PresenceCalculatorWindow:

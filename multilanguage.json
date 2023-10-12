@@ -14,5 +14,68 @@
             "Eng": "Cam Module",
             "Tr": "Kamera Modülü"
         }
+    },
+    "LogSearchWindow": {
+        "mastertitle": {
+            "Eng": "Search in Records",
+            "Tr": "Log Sorgulama"
+        },
+        "name_label": {
+            "Eng": "Face Name:",
+            "Tr": "Yüz İsmi:"
+        },
+        "no_date_range_radio": {
+            "Eng": "No specified date - time range",
+            "Tr": "Saat- tarih aralığı aelirtme"
+        },
+        "yes_date_range_radio": {
+            "Eng": "Specify the date - time range",
+            "Tr": "Saat- tarih aralığı belirt"
+        },
+        "start_label": {
+            "Eng": "Start (Date - Time)",
+            "Tr": "Başlangıç (Tarih - Saat)"
+        },
+        "end_label": {
+            "Eng": "End (Date - Time)",
+            "Tr": "Bitiş (Tarih - Saat)"
+        },
+        "search_button": {
+            "Eng": "Search",
+            "Tr": "Sorgula"
+        },
+        "camera_id_label": {
+            "Eng": "Camera ID:",
+            "Tr": "Kamera ID:"
+        },
+        "showinfoTitle": {
+            "Eng": "No data",
+            "Tr": "Sonuç Yok"
+        },
+        "showinfo": {
+            "Eng": "No data was found as a result of the query",
+            "Tr": "Sorgu sonucunda hiç veri bulunamadı."
+        }
+
+    },
+
+
+
+
+    "all": {
+        "Eng": "All",
+        "Tr": "Hepsi"
+        },
+    "Action": {
+        "Eng": "Action",
+        "Tr": "Hareket"
+        },
+    "in": {
+        "Eng": "in",
+        "Tr": "Giriş"
+        },
+    "out": {
+        "Eng": "out",
+        "Tr": "Çıkış"
+        }
     }
-}
