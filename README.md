@@ -9,3 +9,4 @@
 ![Screenshot 2023-10-20 060904](https://github.com/OnurYenidogan/Access_Control_w-Face_Recognition_Senior_Project/assets/58027395/7f355f9b-7c80-44a5-a5dc-ebec357622b9)
 ![içeride kalma 2 Screenshot 2023-07-05 195043](https://github.com/OnurYenidogan/Access_Control_w-Face_Recognition_Senior_Project/assets/58027395/086a1b6f-ff98-479d-a95f-51391509841e)
 ![camModuleTr](https://github.com/OnurYenidogan/Access_Control_w-Face_Recognition_Senior_Project/assets/58027395/73508957-3beb-43eb-b857-ff1b13af169b)
+![Screenshot 2023-10-20 174110](https://github.com/OnurYenidogan/Access_Control_w-Face_Recognition_Senior_Project/assets/58027395/dfc16a5c-76b1-4c44-8928-c39d71a931ed)
