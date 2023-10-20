@@ -596,7 +596,7 @@ class ShowTableWindow:
 class CameraSelect:
     def __init__(self, master):
         self.master = master
-        self.master.title("Kamera Başlat")
+        self.master.title(MultiLangData["CameraSelect"]["mastertitle"][lang])
         self.master.configure(background='#F5F5F5')
 
         self.BagliCams = get_camera_list()
@@ -604,26 +604,26 @@ class CameraSelect:
         self.camera_type = tk.StringVar(value="TypeA")
 
         # Kamera türü seçimi için label ve radio butonlar
-        type_label = ttk.Label(self.master, text="Kamera Tipi Seçiniz:")
+        type_label = ttk.Label(self.master, text=MultiLangData["CameraSelect"]["type_label"][lang])
         type_label.grid(row=0, column=0, padx=10, pady=10, sticky="e")
 
-        self.typea_radio = ttk.Radiobutton(self.master, text="Giriş", variable=self.camera_type, value="TypeA")
+        self.typea_radio = ttk.Radiobutton(self.master, text=MultiLangData["CameraSelect"]["typea_radio"][lang], variable=self.camera_type, value="TypeA")
         self.typea_radio.grid(row=0, column=1, padx=10, pady=10, sticky="w")
 
-        self.typeb_radio = ttk.Radiobutton(self.master, text="Çıkış", variable=self.camera_type, value="TypeB")
+        self.typeb_radio = ttk.Radiobutton(self.master, text=MultiLangData["CameraSelect"]["typeb_radio"][lang], variable=self.camera_type, value="TypeB")
         self.typeb_radio.grid(row=0, column=2, padx=10, pady=10, sticky="w")
 
         # Kamera listesi için label ve dropdown
-        camera_label = ttk.Label(self.master, text="Kamera Seçiniz:")
+        camera_label = ttk.Label(self.master, text=MultiLangData["CameraSelect"]["camera_label"][lang])
         camera_label.grid(row=1, column=0, padx=10, pady=10, sticky="e")
 
-        self.camera_list = ttk.Combobox(self.master, values=[f"Kamera {cam}" for cam in self.BagliCams],
+        self.camera_list = ttk.Combobox(self.master, values=[MultiLangData["CameraSelect"]["camera_list"][lang] + f"{cam}" for cam in self.BagliCams],
                                         state='readonly', width=20)
         self.camera_list.current(0)
         self.camera_list.grid(row=1, column=1, columnspan=2, padx=10, pady=10, sticky="w")
 
         # Seçimi onaylamak için buton
-        self.confirm_button = ttk.Button(self.master, text="Kamera Başlat", command=self.cameraStart)
+        self.confirm_button = ttk.Button(self.master, text=MultiLangData["CameraSelect"]["confirm_button"][lang], command=self.cameraStart)
         self.confirm_button.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky="we")
 
         self.confirm_button.configure(style='AccentButton.TButton')

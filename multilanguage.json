@@ -60,6 +60,38 @@
     },
 
 
+    "CameraSelect": {
+        "mastertitle": {
+            "Eng": "Start Camera",
+            "Tr": "Kamera Başlat"
+        },
+        "type_label": {
+            "Eng": "Choose Camera Type:",
+            "Tr": "Kamera Tipi Seçiniz:"
+        },
+        "typea_radio": {
+            "Eng": "Entrance",
+            "Tr": "Giriş"
+        },
+        "typeb_radio": {
+            "Eng": "Exit",
+            "Tr": "Çıkış"
+        },
+        "camera_label": {
+            "Eng": "Select Camera:",
+            "Tr": "Kamera Seçiniz:"
+        },
+        "camera_list": {
+            "Eng": "Camera ",
+            "Tr": "Kamera "
+        },
+        "confirm_button": {
+            "Eng": "Start Camera",
+            "Tr": "Kamera Başlat"
+        }
+    },
+
+
 
 
     "all": {
